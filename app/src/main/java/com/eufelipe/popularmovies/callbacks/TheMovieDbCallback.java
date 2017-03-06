@@ -1,6 +1,10 @@
 package com.eufelipe.popularmovies.callbacks;
 
+import com.eufelipe.popularmovies.models.Movie;
+
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * @description : Interface com os métodos de retorno e stage das requisições na Api The Movie Db
@@ -10,10 +14,10 @@ import org.json.JSONObject;
 
 public interface TheMovieDbCallback {
     /**
+     * @param movies
      * @description : Este método será chamado quando a requisição feitar tiver sucesso
-     * @param json
      */
-    void onRequestMoviesSuccess(JSONObject json);
+    void onRequestMoviesSuccess(List<Movie> movies);
 
     /**
      * @description: Este método será chamado quando ocorrer uma falha
@@ -21,8 +25,8 @@ public interface TheMovieDbCallback {
     void onRequestMoviesFailure();
 
     /**
-     * @description : Este método será chamado para exibir ou esconder um ProgressBar
      * @param isShow
+     * @description : Este método será chamado para exibir ou esconder um ProgressBar
      */
     void onRequestMoviesProgress(Boolean isShow);
 }

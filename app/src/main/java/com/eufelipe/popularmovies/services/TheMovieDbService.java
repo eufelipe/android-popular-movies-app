@@ -7,13 +7,17 @@ import android.util.Log;
 import com.eufelipe.popularmovies.application.App;
 import com.eufelipe.popularmovies.callbacks.AsyncTaskCallback;
 import com.eufelipe.popularmovies.callbacks.TheMovieDbCallback;
+import com.eufelipe.popularmovies.models.Movie;
 import com.eufelipe.popularmovies.tasks.TheMovieDbAsyncTask;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @description : class responsável pelas consultas na API The Movie DB
@@ -29,6 +33,12 @@ public class TheMovieDbService implements AsyncTaskCallback {
 
     public TheMovieDbCallback callback;
 
+
+    public Integer page = 1;
+    public Integer totalResults = 0;
+    public Integer totalPages = 0;
+
+
     /**
      * @param callback
      * @description : Ao instanciar esta classe, é obrigatorio passar um objeto TheMovieDbCallback
@@ -39,9 +49,12 @@ public class TheMovieDbService implements AsyncTaskCallback {
 
     /**
      * @description : Método responsável por iniciar a requisição assíncrona a API do The Movie Db
+     * @change : Inclusão do parametro page para paginação
      */
-    public void popular() {
-        URL url = getUrl(THE_MOVIE_DB_ACTION_POPULAR);
+    public void popular(Integer page) {
+        this.page = page;
+
+        URL url = getUrl(THE_MOVIE_DB_ACTION_POPULAR, this.page);
         Log.d(TAG, url.toString());
 
         new TheMovieDbAsyncTask(this).execute(url);
@@ -55,9 +68,23 @@ public class TheMovieDbService implements AsyncTaskCallback {
     public void onAsyncTaskSuccess(String result) {
 
         JSONObject json = null;
+        List<Movie> movies = new ArrayList<>();
+
         try {
             json = new JSONObject(result);
-            callback.onRequestMoviesSuccess(json);
+            JSONArray results = json.getJSONArray("results");
+
+            if (results != null) {
+                for (int i = 0; i < results.length(); i++) {
+                    JSONObject jsonObject = results.getJSONObject(i);
+                    Movie movie = Movie.parse(jsonObject);
+                    if (movie != null) {
+                        movies.add(movie);
+                    }
+                }
+            }
+
+            callback.onRequestMoviesSuccess(movies);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -76,14 +103,17 @@ public class TheMovieDbService implements AsyncTaskCallback {
 
     /**
      * @param action
+     * @param page
      * @return
      * @description : Método helper para montar a url de consulta da API The Movie Db
+     * @change : Inclusão do parametro page para paginação
      */
 
-    private URL getUrl(String action) {
+    private URL getUrl(String action, Integer page) {
 
         Uri.Builder build = Uri.parse(THE_MOVIE_DB_API_URL).buildUpon();
         build.appendQueryParameter("api_key", App.getTheMovieDbKey());
+        build.appendQueryParameter("page", String.valueOf(page));
 
         if (action != null) {
             build.appendEncodedPath(action);

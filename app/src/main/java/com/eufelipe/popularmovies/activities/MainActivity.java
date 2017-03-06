@@ -7,9 +7,12 @@ import android.widget.Toast;
 import com.eufelipe.popularmovies.R;
 import com.eufelipe.popularmovies.bases.BaseActivity;
 import com.eufelipe.popularmovies.callbacks.TheMovieDbCallback;
+import com.eufelipe.popularmovies.models.Movie;
 import com.eufelipe.popularmovies.services.TheMovieDbService;
 
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * @description : Activity principal com o requesito de exibir uma lista de filmes populares
@@ -29,7 +32,7 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
 
         helloworld = (TextView) findViewById(R.id.helloworld);
 
-        getTheMovieDbService().popular();
+        getTheMovieDbService().popular(1);
 
     }
 
@@ -44,11 +47,12 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
 
 
     @Override
-    public void onRequestMoviesSuccess(JSONObject json) {
+    public void onRequestMoviesSuccess(List<Movie> movieList) {
 
-        if (json != null) {
-            String result = json.toString();
-            helloworld.setText(result);
+        if (movieList != null) {
+            for (Movie movie : movieList) {
+                helloworld.append(movie.getTitle() + "\n\n\n");
+            }
         }
 
     }
