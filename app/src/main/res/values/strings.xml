@@ -1,8 +1,5 @@
 <resources>
     <string name="app_name">Popular Movies App</string>
-
-
-
-
+    <string name="app_imageview_movie_description">Poster Image of The Movie</string>
     <string name="app_error_request_server">An error has occurred!</string>
 </resources>
