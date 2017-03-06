@@ -26,3 +26,4 @@
 
 
 -dontwarn com.squareup.okhttp.**
+-dontwarn okhttp3.**
