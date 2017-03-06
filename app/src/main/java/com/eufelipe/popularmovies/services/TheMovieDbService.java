@@ -84,7 +84,7 @@ public class TheMovieDbService implements AsyncTaskCallback {
                 }
             }
 
-            callback.onRequestMoviesSuccess(movies);
+            callback.onRequestMoviesSuccess(movies, this.page);
 
         } catch (JSONException e) {
             e.printStackTrace();

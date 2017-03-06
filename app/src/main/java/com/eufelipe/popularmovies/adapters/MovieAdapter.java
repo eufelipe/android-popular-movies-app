@@ -44,4 +44,19 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
     public int getItemCount() {
         return this.movieList.size();
     }
+
+
+    /**
+     * @param position
+     * @param movie
+     * @desription : Método para add itens
+     */
+    public void addItem(int position, Movie movie) {
+        movieList.add(position, movie);
+        Integer index = movieList.indexOf(movie);
+        notifyItemInserted(index);
+
+    }
+
+
 }

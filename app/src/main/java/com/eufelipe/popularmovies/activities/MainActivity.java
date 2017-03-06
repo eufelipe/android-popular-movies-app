@@ -15,7 +15,7 @@ import com.eufelipe.popularmovies.services.TheMovieDbService;
 import java.util.List;
 
 /**
- * @description : Activity principal com o requesito de exibir uma lista de filmes populares
+ * @description : Activity principal com o requisito de exibir uma lista de filmes populares
  * @author: Felipe Rosas <contato@eufelipe.com>
  */
 
@@ -28,7 +28,16 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
     MovieAdapter mMovieAdapter;
     GridLayoutManager mGridLayoutManager;
 
+    // página atual
     Integer page = 1;
+
+    /**
+     * Loader More
+     */
+    int pastVisiblesItems;
+    int visibleItemCount;
+    int totalItemCount;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +51,11 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
 
     }
 
-
+    /**
+     * Lazy load Instance
+     *
+     * @return
+     */
     private TheMovieDbService getTheMovieDbService() {
         if (theMovieDbService == null) {
             theMovieDbService = new TheMovieDbService(this);
@@ -51,13 +64,53 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         return theMovieDbService;
     }
 
-
-    @Override
-    public void onRequestMoviesSuccess(List<Movie> movieList) {
+    /**
+     * @param movieList
+     * @description : configura o adaptador pela primeira vez e inicia um Listener para load more
+     */
+    private void configureAdapter(List<Movie> movieList) {
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         mMovieAdapter = new MovieAdapter(this, movieList);
         mRecyclerView.setAdapter(mMovieAdapter);
+
+        // Listener for Loader More
+        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                visibleItemCount = mGridLayoutManager.getChildCount();
+                totalItemCount = mGridLayoutManager.getItemCount();
+                pastVisiblesItems = mGridLayoutManager.findFirstVisibleItemPosition();
+                
+                if ((visibleItemCount + pastVisiblesItems + 1) >= totalItemCount) {
+                    getTheMovieDbService().popular(page + 1);
+                }
+            }
+        };
+
+        mRecyclerView.addOnScrollListener(onScrollListener);
+
+    }
+
+    @Override
+    public void onRequestMoviesSuccess(List<Movie> movieList, Integer page) {
+
+        // Se a pagina que for enviada for igual, significa que é o primeiro load
+        if (page == this.page) {
+            configureAdapter(movieList);
+            return;
+        }
+
+        // Se página enviada for diferente, então os items devem ser acrescentados no final do adapter...
+        // E a this.page deve ser atualizada para o próximo request
+        this.page = page;
+
+        for (Movie movie : movieList) {
+            mMovieAdapter.addItem(mMovieAdapter.getItemCount(), movie);
+        }
+
     }
 
     @Override

@@ -17,7 +17,7 @@ public interface TheMovieDbCallback {
      * @param movies
      * @description : Este método será chamado quando a requisição feitar tiver sucesso
      */
-    void onRequestMoviesSuccess(List<Movie> movies);
+    void onRequestMoviesSuccess(List<Movie> movies, Integer page);
 
     /**
      * @description: Este método será chamado quando ocorrer uma falha
