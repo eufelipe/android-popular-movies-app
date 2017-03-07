@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.eufelipe.popularmovies.application.App;
+import com.eufelipe.popularmovies.application.MovieOrder;
 import com.eufelipe.popularmovies.callbacks.AsyncTaskCallback;
 import com.eufelipe.popularmovies.callbacks.TheMovieDbCallback;
 import com.eufelipe.popularmovies.models.Movie;
@@ -30,6 +31,7 @@ public class TheMovieDbService implements AsyncTaskCallback {
 
     private final String THE_MOVIE_DB_API_URL = "Http://api.themoviedb.org/3/movie/";
     private final String THE_MOVIE_DB_ACTION_POPULAR = "popular";
+    private final String THE_MOVIE_DB_ACTION_TOP_RATED = "top_rated";
 
     public TheMovieDbCallback callback;
 
@@ -49,11 +51,13 @@ public class TheMovieDbService implements AsyncTaskCallback {
         this.callback = callback;
     }
 
+
     /**
+     * @param page
+     * @param movieOrder
      * @description : Método responsável por iniciar a requisição assíncrona a API do The Movie Db
-     * @change : Inclusão do parametro page para paginação
      */
-    public void popular(Integer page) {
+    public void request(Integer page, MovieOrder movieOrder) {
         if (isRequest) {
             return;
         }
@@ -61,11 +65,18 @@ public class TheMovieDbService implements AsyncTaskCallback {
         isRequest = true;
         this.page = page;
 
-        URL url = getUrl(THE_MOVIE_DB_ACTION_POPULAR, this.page);
+        String action = THE_MOVIE_DB_ACTION_POPULAR;
+
+        if (movieOrder == MovieOrder.TOP_RATED) {
+            action = THE_MOVIE_DB_ACTION_TOP_RATED;
+        }
+
+        URL url = getUrl(action, this.page);
         Log.d(TAG, url.toString());
 
         new TheMovieDbAsyncTask(this).execute(url);
     }
+
 
     /**
      * @param result

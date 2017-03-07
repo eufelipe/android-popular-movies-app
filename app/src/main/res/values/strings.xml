@@ -2,4 +2,9 @@
     <string name="app_name">Popular Movies</string>
     <string name="app_imageview_movie_description">Poster Image of The Movie</string>
     <string name="app_error_request_server">An error has occurred!</string>
+
+    <string name="menu_popular_movies">Popular Movies</string>
+    <string name="menu_top_rated_movies">Top rated Movies</string>
+    <string name="menu_already_ordered">Already ordered this way =)</string>
+
 </resources>

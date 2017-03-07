@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.eufelipe.popularmovies.R;
 import com.eufelipe.popularmovies.adapters.MovieAdapter;
+import com.eufelipe.popularmovies.application.MovieOrder;
 import com.eufelipe.popularmovies.bases.BaseActivity;
 import com.eufelipe.popularmovies.callbacks.TheMovieDbCallback;
 import com.eufelipe.popularmovies.models.Movie;
@@ -35,6 +38,8 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
     // página atual
     Integer page = 1;
 
+    MovieOrder movieOrder = MovieOrder.POPULAR;
+
     /**
      * Loader More
      */
@@ -58,7 +63,7 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         mGridLayoutManager = new GridLayoutManager(this, GRID_COLUMNS_PORTRAT);
-        getTheMovieDbService().popular(this.page);
+        getTheMovieDbService().request(this.page, movieOrder);
 
     }
 
@@ -113,7 +118,7 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
 
                 if ((visibleItemCount + pastVisiblesItems + 1) >= totalItemCount) {
                     mMovieAdapter.setIsShowLoader(true);
-                    getTheMovieDbService().popular(page + 1);
+                    getTheMovieDbService().request(page + 1, movieOrder);
                 }
             }
         };
@@ -158,6 +163,41 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
     public void onRequestMoviesProgress(Boolean isShow) {
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+
+        switch (itemId) {
+            case R.id.action_popular_movies:
+                return actionMenu(MovieOrder.POPULAR);
+
+            case R.id.action_top_rated_movies:
+                return actionMenu(MovieOrder.TOP_RATED);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private boolean actionMenu(MovieOrder item) {
+        if (movieOrder == item) {
+            showToast(getString(R.string.menu_already_ordered));
+            return true;
+        }
+
+        movieOrder = item;
+        page = 1;
+        mMovieAdapter.getItems().clear();
+        mMovieAdapter.notifyDataSetChanged();
+        getTheMovieDbService().request(page, movieOrder);
+        return true;
+    }
+
 
     /**
      * @param outState

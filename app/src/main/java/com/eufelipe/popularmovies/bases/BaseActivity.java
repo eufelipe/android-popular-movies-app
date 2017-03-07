@@ -1,6 +1,7 @@
 package com.eufelipe.popularmovies.bases;
 
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 
 /**
@@ -9,5 +10,21 @@ import android.support.v7.app.AppCompatActivity;
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
+    Toast mToast;
+
+
+    public void showToast(String message) {
+        if (message == null) {
+            return;
+        }
+
+        if (mToast != null) {
+            mToast.cancel();
+        }
+
+        mToast = Toast.makeText(this, message, Toast.LENGTH_LONG);
+        mToast.show();
+
+    }
 
 }
