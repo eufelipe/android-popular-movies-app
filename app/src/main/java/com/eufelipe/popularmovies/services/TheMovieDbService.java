@@ -38,6 +38,8 @@ public class TheMovieDbService implements AsyncTaskCallback {
     public Integer totalResults = 0;
     public Integer totalPages = 0;
 
+    public Boolean isRequest = false;
+
 
     /**
      * @param callback
@@ -52,6 +54,11 @@ public class TheMovieDbService implements AsyncTaskCallback {
      * @change : Inclusão do parametro page para paginação
      */
     public void popular(Integer page) {
+        if (isRequest) {
+            return;
+        }
+
+        isRequest = true;
         this.page = page;
 
         URL url = getUrl(THE_MOVIE_DB_ACTION_POPULAR, this.page);
@@ -66,7 +73,7 @@ public class TheMovieDbService implements AsyncTaskCallback {
      */
     @Override
     public void onAsyncTaskSuccess(String result) {
-
+        isRequest = false;
         JSONObject json = null;
         List<Movie> movies = new ArrayList<>();
 
@@ -98,6 +105,7 @@ public class TheMovieDbService implements AsyncTaskCallback {
      */
     @Override
     public void onAsyncTaskError() {
+        isRequest = false;
         callback.onRequestMoviesFailure();
     }
 

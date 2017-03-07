@@ -1,6 +1,8 @@
 package com.eufelipe.popularmovies.activities;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
@@ -21,7 +23,9 @@ import java.util.List;
 
 public class MainActivity extends BaseActivity implements TheMovieDbCallback {
 
-    private static final int GRID_COLUMNS = 2;
+    final int GRID_COLUMNS_PORTRAT = 2;
+    final int GRID_COLUMNS_LAND = 3;
+
     TheMovieDbService theMovieDbService = null;
 
     RecyclerView mRecyclerView;
@@ -39,14 +43,21 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
     int totalItemCount;
 
 
+    /**
+     * Restore
+     */
+
+    Parcelable mMovieListParceble;
+    String MOVIE_LIST_STATE_KEY = "MOVIE_LIST_STATE_KEY";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        mGridLayoutManager = new GridLayoutManager(this, GRID_COLUMNS);
-
+        mGridLayoutManager = new GridLayoutManager(this, GRID_COLUMNS_PORTRAT);
         getTheMovieDbService().popular(this.page);
 
     }
@@ -64,11 +75,27 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         return theMovieDbService;
     }
 
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+
     /**
      * @param movieList
      * @description : configura o adaptador pela primeira vez e inicia um Listener para load more
      */
     private void configureAdapter(List<Movie> movieList) {
+        mGridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (mMovieAdapter != null && mMovieAdapter.getItemViewType(position) == mMovieAdapter.VIEW_TYPE_LOADER) {
+                    return mMovieAdapter.VIEW_TYPE_ITEM;
+                }
+                return mMovieAdapter.VIEW_TYPE_LOADER;
+            }
+        });
+
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         mMovieAdapter = new MovieAdapter(this, movieList);
@@ -83,8 +110,9 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
                 visibleItemCount = mGridLayoutManager.getChildCount();
                 totalItemCount = mGridLayoutManager.getItemCount();
                 pastVisiblesItems = mGridLayoutManager.findFirstVisibleItemPosition();
-                
+
                 if ((visibleItemCount + pastVisiblesItems + 1) >= totalItemCount) {
+                    mMovieAdapter.setIsShowLoader(true);
                     getTheMovieDbService().popular(page + 1);
                 }
             }
@@ -92,10 +120,14 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
 
         mRecyclerView.addOnScrollListener(onScrollListener);
 
+
     }
 
     @Override
     public void onRequestMoviesSuccess(List<Movie> movieList, Integer page) {
+        if (mMovieAdapter != null) {
+            mMovieAdapter.setIsShowLoader(false);
+        }
 
         // Se a pagina que for enviada for igual, significa que é o primeiro load
         if (page == this.page) {
@@ -110,16 +142,57 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         for (Movie movie : movieList) {
             mMovieAdapter.addItem(mMovieAdapter.getItemCount(), movie);
         }
+        mRecyclerView.getRecycledViewPool().clear();
 
     }
 
     @Override
     public void onRequestMoviesFailure() {
+        if (mMovieAdapter != null) {
+            mMovieAdapter.setIsShowLoader(false);
+        }
         Toast.makeText(this, "Ocorreu um erro", Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onRequestMoviesProgress(Boolean isShow) {
 
+    }
+
+    /**
+     * @param outState
+     * @description : Quando a tela é rotacionada, é necessário salvar o estado do GridLayout
+     */
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mMovieListParceble = mGridLayoutManager.onSaveInstanceState();
+        outState.putParcelable(MOVIE_LIST_STATE_KEY, mMovieListParceble);
+    }
+
+    /**
+     * @param savedInstanceState
+     * @description : Quando a view é redesenhada, é necessário recuperar o estado do GridLayout
+     */
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            mMovieListParceble = savedInstanceState.getParcelable(MOVIE_LIST_STATE_KEY);
+        }
+    }
+
+    /**
+     * @description : Quando a View é redesenhada e existe conteudo no mMovieListParceble ele
+     * é aplicado novamente na GridLayout
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mMovieListParceble != null) {
+            mGridLayoutManager.onRestoreInstanceState(mMovieListParceble);
+        }
     }
 }
