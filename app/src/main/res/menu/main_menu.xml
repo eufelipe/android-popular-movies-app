@@ -5,13 +5,13 @@
     <item
         android:id="@+id/action_popular_movies"
         android:orderInCategory="1"
-        android:title="@string/menu_popular_movies"
+        android:title="@string/popular_movies"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_top_rated_movies"
         android:orderInCategory="1"
-        android:title="@string/menu_top_rated_movies"
+        android:title="@string/top_rated_movies"
         app:showAsAction="never" />
 
 </menu>

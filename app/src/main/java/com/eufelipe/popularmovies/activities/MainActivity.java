@@ -1,8 +1,9 @@
 package com.eufelipe.popularmovies.activities;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -19,6 +20,7 @@ import com.eufelipe.popularmovies.services.TheMovieDbService;
 
 import java.util.List;
 
+
 /**
  * @description : Activity principal com o requisito de exibir uma lista de filmes populares
  * @author: Felipe Rosas <contato@eufelipe.com>
@@ -26,8 +28,8 @@ import java.util.List;
 
 public class MainActivity extends BaseActivity implements TheMovieDbCallback {
 
-    final int GRID_COLUMNS_PORTRAT = 2;
-    final int GRID_COLUMNS_LAND = 3;
+
+    ActionBar mActionBar;
 
     TheMovieDbService theMovieDbService = null;
 
@@ -47,6 +49,10 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
     int visibleItemCount;
     int totalItemCount;
 
+    final int LOADER_COLUMN = 1;
+    final int MOVIE_COLUMN = 2;
+
+    boolean isFirstRequest = false;
 
     /**
      * Restore
@@ -55,14 +61,20 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
     Parcelable mMovieListParceble;
     String MOVIE_LIST_STATE_KEY = "MOVIE_LIST_STATE_KEY";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mActionBar = getSupportActionBar();
+        setSubtitle(R.string.popular_movies);
+
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        mGridLayoutManager = new GridLayoutManager(this, GRID_COLUMNS_PORTRAT);
+
+        int columns = getResources().getInteger(R.integer.grid_columns);
+        mGridLayoutManager = new GridLayoutManager(this, columns);
+
+        isFirstRequest = true;
         getTheMovieDbService().request(this.page, movieOrder);
 
     }
@@ -81,11 +93,6 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
     }
 
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
     /**
      * @param movieList
      * @description : configura o adaptador pela primeira vez e inicia um Listener para load more
@@ -94,10 +101,10 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         mGridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                if (mMovieAdapter != null && mMovieAdapter.getItemViewType(position) == mMovieAdapter.VIEW_TYPE_LOADER) {
-                    return mMovieAdapter.VIEW_TYPE_ITEM;
+                if (mMovieAdapter != null && mMovieAdapter.getItemViewType(position) == 1) {
+                    return MOVIE_COLUMN;
                 }
-                return mMovieAdapter.VIEW_TYPE_LOADER;
+                return LOADER_COLUMN;
             }
         });
 
@@ -105,6 +112,7 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         mMovieAdapter = new MovieAdapter(this, movieList);
         mRecyclerView.setAdapter(mMovieAdapter);
+
 
         // Listener for Loader More
         RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
@@ -116,20 +124,37 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
                 totalItemCount = mGridLayoutManager.getItemCount();
                 pastVisiblesItems = mGridLayoutManager.findFirstVisibleItemPosition();
 
+
+                if (isFirstRequest) {
+                    return;
+                }
+
                 if ((visibleItemCount + pastVisiblesItems + 1) >= totalItemCount) {
                     mMovieAdapter.setIsShowLoader(true);
-                    getTheMovieDbService().request(page + 1, movieOrder);
+
+                    Handler handler = new Handler();
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            getTheMovieDbService().request(page + 1, movieOrder);
+                        }
+                    };
+
+                    handler.postDelayed(runnable, 20 * 1000);
+
                 }
             }
         };
 
         mRecyclerView.addOnScrollListener(onScrollListener);
 
-
     }
 
     @Override
     public void onRequestMoviesSuccess(List<Movie> movieList, Integer page) {
+
+        isFirstRequest = false;
+
         if (mMovieAdapter != null) {
             mMovieAdapter.setIsShowLoader(false);
         }
@@ -159,10 +184,6 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         Toast.makeText(this, "Ocorreu um erro", Toast.LENGTH_LONG).show();
     }
 
-    @Override
-    public void onRequestMoviesProgress(Boolean isShow) {
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -189,6 +210,9 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
             showToast(getString(R.string.menu_already_ordered));
             return true;
         }
+
+        int subtitle = (item == MovieOrder.POPULAR ? R.string.popular_movies : R.string.top_rated_movies);
+        setSubtitle(subtitle);
 
         movieOrder = item;
         page = 1;
@@ -234,5 +258,13 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         if (mMovieListParceble != null) {
             mGridLayoutManager.onRestoreInstanceState(mMovieListParceble);
         }
+    }
+
+    public void setSubtitle(int subtitle) {
+        if (mActionBar == null) {
+            return;
+        }
+
+        mActionBar.setSubtitle(subtitle);
     }
 }

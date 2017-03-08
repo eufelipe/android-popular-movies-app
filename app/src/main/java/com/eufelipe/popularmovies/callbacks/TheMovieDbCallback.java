@@ -23,10 +23,5 @@ public interface TheMovieDbCallback {
      * @description: Este método será chamado quando ocorrer uma falha
      */
     void onRequestMoviesFailure();
-
-    /**
-     * @param isShow
-     * @description : Este método será chamado para exibir ou esconder um ProgressBar
-     */
-    void onRequestMoviesProgress(Boolean isShow);
+ 
 }

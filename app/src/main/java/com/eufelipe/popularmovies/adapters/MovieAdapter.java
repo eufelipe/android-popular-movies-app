@@ -18,8 +18,7 @@ import java.util.List;
 public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Movie> movieList = new ArrayList<>();
-    private Context mContext;
-    private String[] items;
+
 
     public final int VIEW_TYPE_ITEM = 0;
     public final int VIEW_TYPE_LOADER = 1;
@@ -28,7 +27,6 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public MovieAdapter(Context mContext, List<Movie> movieList) {
         this.movieList = movieList;
-        this.mContext = mContext;
     }
 
     @Override
@@ -50,13 +48,11 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
-        if (holder instanceof LoaderViewHolder) {
-            ((LoaderViewHolder) holder).mLoader.setIndeterminate(true);
-
-        } else if (movieList.size() > 0 && position < movieList.size()) {
-            Movie movie = movieList.get(position);
-            ((MovieViewHolder) holder).bind(movie);
+        if (holder instanceof MovieViewHolder) {
+            if (movieList.size() > 0 && position < movieList.size()) {
+                Movie movie = movieList.get(position);
+                ((MovieViewHolder) holder).bind(movie);
+            }
         }
     }
 
@@ -70,7 +66,6 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (isShowLoader && position >= movieList.size()) {
             return VIEW_TYPE_LOADER;
         }
-
         return VIEW_TYPE_ITEM;
     }
 

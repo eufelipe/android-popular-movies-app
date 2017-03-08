@@ -14,6 +14,7 @@ public class LoaderViewHolder extends RecyclerView.ViewHolder {
     public LoaderViewHolder(View itemView) {
         super(itemView);
         mLoader = (ProgressBar) itemView.findViewById(R.id.loader);
+        mLoader.setIndeterminate(true);
     }
 
 }
