@@ -26,6 +26,8 @@ public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnC
     public void bind(Movie movie) {
         Picasso.with(mContext)
                 .load(movie.getPosterImage())
+                .error(R.mipmap.ic_movie_thumb)
+                .placeholder(R.mipmap.ic_movie_thumb)
                 .into(mPosterImageView);
     }
 

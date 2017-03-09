@@ -1,5 +1,8 @@
 package com.eufelipe.popularmovies.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -7,7 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Movie {
+public class Movie implements Parcelable {
 
     final static String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/";
     final static String SIZE_IMAGE = "w185";
@@ -15,8 +18,8 @@ public class Movie {
 
     final static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    private Integer id;
-    private Boolean isAdult;
+    private int id;
+    private boolean isAdult;
     private String overview;
     private Date releaseDate;
     private String originalTitle;
@@ -24,10 +27,13 @@ public class Movie {
     private String title;
     private String poster;
     private String backdrop;
-    private Double popularity;
-    private Integer voteCount;
-    private Integer voteAverage;
-    private Boolean isVideo;
+    private double popularity;
+    private int voteCount;
+    private int voteAverage;
+    private boolean isVideo;
+
+    public Movie() {
+    }
 
     public Integer getId() {
         return id;
@@ -254,4 +260,57 @@ public class Movie {
     }
 
 
+    /**
+     * Parcelable
+     */
+
+
+    protected Movie(Parcel in) {
+        id = in.readInt();
+        isAdult = in.readByte() != 0;
+        overview = in.readString();
+        originalTitle = in.readString();
+        originalLanguage = in.readString();
+        title = in.readString();
+        poster = in.readString();
+        backdrop = in.readString();
+        popularity = in.readDouble();
+        voteCount = in.readInt();
+        voteAverage = in.readInt();
+        isVideo = in.readByte() != 0;
+    }
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeByte((byte) (isAdult ? 1 : 0));
+        parcel.writeString(overview);
+        parcel.writeString(originalTitle);
+        parcel.writeString(originalLanguage);
+        parcel.writeString(title);
+        parcel.writeString(poster);
+        parcel.writeString(backdrop);
+        parcel.writeDouble(popularity);
+        parcel.writeInt(voteCount);
+        parcel.writeInt(voteAverage);
+        parcel.writeByte((byte) (isVideo ? 1 : 0));
+    }
 }

@@ -28,6 +28,7 @@ dependencies {
     /**  Support **/
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.android.support:recyclerview-v7:25.2.0'
+    compile 'com.android.support:design:25.2.0'
 
     /** Helpers **/
     compile 'com.squareup.picasso:picasso:2.5.2'

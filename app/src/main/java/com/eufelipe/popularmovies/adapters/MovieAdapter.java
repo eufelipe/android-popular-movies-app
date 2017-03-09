@@ -69,6 +69,12 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return VIEW_TYPE_ITEM;
     }
 
+    @Override
+    public long getItemId(int position) {
+        Movie listItem = movieList.get(position);
+        return listItem.hashCode();
+    }
+
     public void setIsShowLoader(boolean isShow) {
         this.isShowLoader = isShow;
     }
@@ -80,6 +86,11 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
      * @desription : Método para add itens
      */
     public void addItem(int position, Movie movie) {
+
+        if (movieList.contains(movie)) {
+            return;
+        }
+
         movieList.add(position, movie);
         Integer index = movieList.indexOf(movie);
 //        notifyItemInserted(index);
@@ -93,4 +104,5 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public List<Movie> getItems() {
         return movieList;
     }
+
 }

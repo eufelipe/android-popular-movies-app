@@ -22,6 +22,6 @@ public interface TheMovieDbCallback {
     /**
      * @description: Este método será chamado quando ocorrer uma falha
      */
-    void onRequestMoviesFailure();
- 
+    void onRequestMoviesFailure(String error);
+
 }

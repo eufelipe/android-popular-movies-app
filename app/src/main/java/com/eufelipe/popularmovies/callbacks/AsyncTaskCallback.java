@@ -8,13 +8,13 @@ package com.eufelipe.popularmovies.callbacks;
 
 public interface AsyncTaskCallback {
     /**
-     * @description: Este método será chamado quando ocorrer um sucesso na Task
      * @param result
+     * @description: Este método será chamado quando ocorrer um sucesso na Task
      */
     void onAsyncTaskSuccess(String result);
 
     /**
      * @description : Este método será chamado quando ocorrer uma falha da Task
      */
-    void onAsyncTaskError();
+    void onAsyncTaskError(String error);
 }

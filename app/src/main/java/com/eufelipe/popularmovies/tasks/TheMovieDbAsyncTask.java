@@ -1,7 +1,12 @@
 package com.eufelipe.popularmovies.tasks;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
+import com.eufelipe.popularmovies.R;
+import com.eufelipe.popularmovies.application.App;
 import com.eufelipe.popularmovies.callbacks.AsyncTaskCallback;
 import com.eufelipe.popularmovies.helpers.NetworkHelper;
 
@@ -18,9 +23,9 @@ public class TheMovieDbAsyncTask extends AsyncTask<URL, Void, String> {
     AsyncTaskCallback callback;
 
     /**
+     * @param callback
      * @description : Ao instanciar esta classe, é obrigatorio passar um objeto AsyncTaskCallback
      * para realizar a função de callback do response da requisição
-     * @param callback
      */
     public TheMovieDbAsyncTask(AsyncTaskCallback callback) {
         this.callback = callback;
@@ -28,6 +33,10 @@ public class TheMovieDbAsyncTask extends AsyncTask<URL, Void, String> {
 
     @Override
     protected String doInBackground(URL... urls) {
+
+        if (!NetworkHelper.isOnline(App.mGlobalContext)) {
+            return App.mGlobalContext.getString(R.string.app_error_not_internet);
+        }
 
         URL url = urls[0];
         String response = NetworkHelper.requestFromURL(url);
@@ -37,12 +46,21 @@ public class TheMovieDbAsyncTask extends AsyncTask<URL, Void, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        if (s != null) {
+
+        String errorInternet = App.mGlobalContext.getString(R.string.app_error_not_internet);
+
+        if (s != null && !s.equals(errorInternet)) {
             callback.onAsyncTaskSuccess(s);
             return;
         }
 
-        callback.onAsyncTaskError();
+        String error = null;
+        if (s != null && s.equals(errorInternet)) {
+            error = errorInternet;
+        }
+
+        callback.onAsyncTaskError(error);
     }
+
 
 }

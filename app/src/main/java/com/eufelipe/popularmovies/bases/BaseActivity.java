@@ -12,8 +12,11 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     Toast mToast;
 
+    protected void showToast(int resourceId) {
+        showToast(getString(resourceId));
+    }
 
-    public void showToast(String message) {
+    protected void showToast(String message) {
         if (message == null) {
             return;
         }

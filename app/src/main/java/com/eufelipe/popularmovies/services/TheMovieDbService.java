@@ -106,7 +106,7 @@ public class TheMovieDbService implements AsyncTaskCallback {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            callback.onRequestMoviesFailure();
+            callback.onRequestMoviesFailure(null);
         }
 
     }
@@ -115,9 +115,9 @@ public class TheMovieDbService implements AsyncTaskCallback {
      * @description : Retorno de Falha ou Erro da class TheMovieDbAsyncTask
      */
     @Override
-    public void onAsyncTaskError() {
+    public void onAsyncTaskError(String error) {
         isRequest = false;
-        callback.onRequestMoviesFailure();
+        callback.onRequestMoviesFailure(error);
     }
 
     /**
