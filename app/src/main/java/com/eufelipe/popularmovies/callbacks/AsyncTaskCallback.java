@@ -11,10 +11,10 @@ public interface AsyncTaskCallback {
      * @param result
      * @description: Este método será chamado quando ocorrer um sucesso na Task
      */
-    void onAsyncTaskSuccess(String result);
+    void onAsyncTaskSuccess(String result, String action);
 
     /**
      * @description : Este método será chamado quando ocorrer uma falha da Task
      */
-    void onAsyncTaskError(String error);
+    void onAsyncTaskError(String error, String action);
 }

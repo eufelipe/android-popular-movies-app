@@ -3,10 +3,102 @@
     <!-- Base application theme. -->
     <!--<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+
+    <!-- HELPERS -->
+    <style name="linear_layout_full_vertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="match_match">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="match_wrap">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="wrap_wrap">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="wrap_match">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+
+    <style name="row">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:weightSum">100</item>
+    </style>
+
+    <style name="col10" parent="linearLayoutPercent">
+        <item name="android:layout_weight">10</item>
+    </style>
+
+    <style name="col20" parent="linearLayoutPercent">
+        <item name="android:layout_weight">20</item>
+    </style>
+
+    <style name="col30" parent="linearLayoutPercent">
+        <item name="android:layout_weight">30</item>
+    </style>
+
+    <style name="col40" parent="linearLayoutPercent">
+        <item name="android:layout_weight">40</item>
+    </style>
+
+    <style name="col50" parent="linearLayoutPercent">
+        <item name="android:layout_weight">50</item>
+    </style>
+
+    <style name="col60" parent="linearLayoutPercent">
+        <item name="android:layout_weight">60</item>
+    </style>
+
+    <style name="col70" parent="linearLayoutPercent">
+        <item name="android:layout_weight">70</item>
+    </style>
+
+    <style name="col80" parent="linearLayoutPercent">
+        <item name="android:layout_weight">80</item>
+    </style>
+
+    <style name="col90" parent="linearLayoutPercent">
+        <item name="android:layout_weight">90</item>
+    </style>
+
+    <style name="col100" parent="linearLayoutPercent">
+        <item name="android:layout_weight">100</item>
+    </style>
+
+    <style name="linearLayoutPercent">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+
+    <style name="divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0.2dip</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">#dddddd</item>
+        <item name="android:layout_marginBottom">@dimen/dimen_10dp</item>
+        <item name="android:layout_marginTop">@dimen/dimen_10dp</item>
+    </style>
+
 
 </resources>

@@ -7,7 +7,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,9 +16,9 @@ import android.widget.TextView;
 
 import com.eufelipe.popularmovies.R;
 import com.eufelipe.popularmovies.adapters.MovieAdapter;
-import com.eufelipe.popularmovies.application.MovieOrder;
+import com.eufelipe.popularmovies.application.Constants;
+import com.eufelipe.popularmovies.application.ListMovieCategory;
 import com.eufelipe.popularmovies.bases.BaseActivity;
-import com.eufelipe.popularmovies.callbacks.TheMovieDbCallback;
 import com.eufelipe.popularmovies.helpers.NetworkHelper;
 import com.eufelipe.popularmovies.models.Movie;
 import com.eufelipe.popularmovies.services.TheMovieDbService;
@@ -32,11 +31,10 @@ import java.util.List;
  * @author: Felipe Rosas <contato@eufelipe.com>
  */
 
-public class MainActivity extends BaseActivity implements TheMovieDbCallback {
+public class MainActivity extends BaseActivity {
 
     final static String TAG = "MainActivity";
 
-    Toolbar mToolbar;
     Context mContext;
 
     TheMovieDbService theMovieDbService = null;
@@ -56,7 +54,7 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
     // página atual
     Integer page = 1;
 
-    MovieOrder movieOrder = MovieOrder.POPULAR;
+    ListMovieCategory listMovieCategory = ListMovieCategory.POPULAR;
 
     /**
      * Loader More
@@ -78,9 +76,6 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
      */
 
     Parcelable mMovieListParceble;
-    String MOVIE_LIST_STATE_KEY = "MOVIE_LIST_STATE_KEY";
-    String SUBTITLE_STATE_KEY = "SUBTITLE_STATE_KEY";
-    String MOVIE_ORDER_STATE_KEY = "MOVIE_ORDER_STATE_KEY";
 
     private boolean isEnableLoadMore = true;
 
@@ -90,7 +85,7 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         setContentView(R.layout.activity_main);
         mContext = getApplicationContext();
 
-        initializeToolbar();
+        initializeToolbar(R.string.app_name);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         mErrorView = (RelativeLayout) findViewById(R.id.rl_not_internet);
@@ -102,21 +97,21 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         mErrorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getTheMovieDbService().request(page, movieOrder);
+                getTheMovieDbService().movies(page, listMovieCategory);
             }
         });
 
         if (savedInstanceState != null) {
-            int subtitleSaved = savedInstanceState.getInt(SUBTITLE_STATE_KEY, -1);
+            int subtitleSaved = savedInstanceState.getInt(Constants.SUBTITLE_STATE_KEY, -1);
             if (subtitleSaved > -1) {
                 subtitle = subtitleSaved;
             }
 
-            int order = savedInstanceState.getInt(MOVIE_ORDER_STATE_KEY, -1);
+            int order = savedInstanceState.getInt(Constants.MOVIE_ORDER_STATE_KEY, -1);
             if (order > -1) {
-                movieOrder = MovieOrder.POPULAR;
+                listMovieCategory = ListMovieCategory.POPULAR;
                 if (order == 2) {
-                    movieOrder = MovieOrder.TOP_RATED;
+                    listMovieCategory = ListMovieCategory.TOP_RATED;
                 }
             }
         }
@@ -125,18 +120,11 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         mGridLayoutManager = new GridLayoutManager(this, columns);
         mLoaderView.setVisibility(View.VISIBLE);
 
-        getTheMovieDbService().request(page, movieOrder);
-        setSubtitleToolbar(movieOrder);
+        requestMoviesOnApi(page, listMovieCategory);
+        setSubtitleToolbar(listMovieCategory);
 
     }
 
-
-    private void initializeToolbar() {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-        setTitle(R.string.app_name);
-        mToolbar.setTitleTextColor(ContextCompat.getColor(mContext, android.R.color.white));
-    }
 
     /**
      * Lazy load Instance
@@ -149,6 +137,14 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         }
 
         return theMovieDbService;
+    }
+
+    /**
+     * @param page
+     * @param listMovieCategory
+     */
+    private void requestMoviesOnApi(int page, ListMovieCategory listMovieCategory) {
+        getTheMovieDbService().movies(page, listMovieCategory);
     }
 
 
@@ -209,7 +205,7 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
                         return;
                     }
 
-                    getTheMovieDbService().request(page + 1, movieOrder);
+                    requestMoviesOnApi(page + 1, listMovieCategory);
 
                 }
             }
@@ -221,7 +217,7 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
 
 
     @Override
-    public void onRequestMoviesSuccess(List<Movie> movieList, Integer page) {
+    public void onRequestMovieSuccess(List<Movie> movieList, Integer page) {
 
         mLoaderView.setVisibility(View.GONE);
         mErrorView.setVisibility(View.GONE);
@@ -240,7 +236,7 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         }
 
         // Se página enviada for diferente, então os items devem ser acrescentados no final do adapter...
-        // E a this.page deve ser atualizada para o próximo request
+        // E a this.page deve ser atualizada para o próximo movies
         this.page = page;
 
         if (mMovieAdapter != null) {
@@ -252,7 +248,7 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
     }
 
     @Override
-    public void onRequestMoviesFailure(String error) {
+    public void onRequestMoviesFailure(String error, String action) {
 
         mLoaderView.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.GONE);
@@ -283,16 +279,16 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
 
         switch (itemId) {
             case R.id.action_popular_movies:
-                return actionMenu(MovieOrder.POPULAR);
+                return actionMenu(ListMovieCategory.POPULAR);
 
             case R.id.action_top_rated_movies:
-                return actionMenu(MovieOrder.TOP_RATED);
+                return actionMenu(ListMovieCategory.TOP_RATED);
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean actionMenu(MovieOrder movieOrder) {
-        if (this.movieOrder == movieOrder) {
+    private boolean actionMenu(ListMovieCategory order) {
+        if (this.listMovieCategory == order) {
             showToast(getString(R.string.menu_already_ordered));
             return true;
         }
@@ -301,13 +297,13 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         mErrorView.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.GONE);
 
-        setSubtitleToolbar(movieOrder);
+        setSubtitleToolbar(order);
 
-        this.movieOrder = movieOrder;
+        listMovieCategory = order;
         page = 1;
         mMovieAdapter.getItems().clear();
         mMovieAdapter.notifyDataSetChanged();
-        getTheMovieDbService().request(page, this.movieOrder);
+        requestMoviesOnApi(page, listMovieCategory);
         return true;
     }
 
@@ -320,9 +316,9 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         mMovieListParceble = mGridLayoutManager.onSaveInstanceState();
-        savedInstanceState.putParcelable(MOVIE_LIST_STATE_KEY, mMovieListParceble);
-        savedInstanceState.putInt(SUBTITLE_STATE_KEY, subtitle);
-        savedInstanceState.putInt(MOVIE_ORDER_STATE_KEY, movieOrder == MovieOrder.POPULAR ? 1 : 2);
+        savedInstanceState.putParcelable(Constants.MOVIE_LIST_STATE_KEY, mMovieListParceble);
+        savedInstanceState.putInt(Constants.SUBTITLE_STATE_KEY, subtitle);
+        savedInstanceState.putInt(Constants.MOVIE_ORDER_STATE_KEY, listMovieCategory == ListMovieCategory.POPULAR ? 1 : 2);
 
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -336,12 +332,12 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         super.onRestoreInstanceState(savedInstanceState);
 
         if (savedInstanceState != null) {
-            mMovieListParceble = savedInstanceState.getParcelable(MOVIE_LIST_STATE_KEY);
-            subtitle = savedInstanceState.getInt(SUBTITLE_STATE_KEY);
-            int order = savedInstanceState.getInt(MOVIE_ORDER_STATE_KEY);
-            movieOrder = MovieOrder.POPULAR;
+            mMovieListParceble = savedInstanceState.getParcelable(Constants.MOVIE_LIST_STATE_KEY);
+            subtitle = savedInstanceState.getInt(Constants.SUBTITLE_STATE_KEY);
+            int order = savedInstanceState.getInt(Constants.MOVIE_ORDER_STATE_KEY);
+            listMovieCategory = ListMovieCategory.POPULAR;
             if (order == 2) {
-                movieOrder = MovieOrder.TOP_RATED;
+                listMovieCategory = ListMovieCategory.TOP_RATED;
             }
         }
     }
@@ -358,17 +354,17 @@ public class MainActivity extends BaseActivity implements TheMovieDbCallback {
         }
     }
 
-    public void setSubtitleToolbar(MovieOrder movieOrder) {
+    public void setSubtitleToolbar(ListMovieCategory listMovieCategory) {
         if (mToolbar == null) {
             return;
         }
 
         int color = ContextCompat.getColor(mContext, R.color.colorPurple);
-        if (movieOrder == MovieOrder.TOP_RATED) {
+        if (listMovieCategory == ListMovieCategory.TOP_RATED) {
             color = ContextCompat.getColor(mContext, R.color.colorOrange);
         }
         mToolbar.setBackgroundColor(color);
-        subtitle = (movieOrder == MovieOrder.POPULAR ? R.string.popular_movies : R.string.top_rated_movies);
+        subtitle = (listMovieCategory == ListMovieCategory.POPULAR ? R.string.popular_movies : R.string.top_rated_movies);
         mToolbar.setSubtitle(subtitle);
     }
 

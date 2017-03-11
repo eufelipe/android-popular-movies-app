@@ -3,12 +3,17 @@ package com.eufelipe.popularmovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class Movie implements Parcelable {
 
@@ -32,6 +37,10 @@ public class Movie implements Parcelable {
     private int voteAverage;
     private boolean isVideo;
 
+    private String tagline;
+    private int runtime;
+
+
     public Movie() {
     }
 
@@ -54,6 +63,9 @@ public class Movie implements Parcelable {
     }
 
     public String getOverview() {
+        if (overview == null) {
+            return "";
+        }
         return overview;
     }
 
@@ -90,6 +102,9 @@ public class Movie implements Parcelable {
     }
 
     public String getTitle() {
+        if (title == null) {
+            return "";
+        }
         return title;
     }
 
@@ -150,6 +165,71 @@ public class Movie implements Parcelable {
     public Movie setIsVideo(Boolean video) {
         isVideo = video;
         return this;
+    }
+
+    public String getTagline() {
+        return tagline;
+    }
+
+    public Movie setTagline(String tagline) {
+        this.tagline = tagline;
+        return this;
+    }
+
+    public int getRuntime() {
+        return runtime;
+    }
+
+    public Movie setRuntime(int runtime) {
+        this.runtime = runtime;
+        return this;
+    }
+
+
+    public String getReleaseDateDisplay() {
+        DateFormat dfmt = new SimpleDateFormat("MMMM',' yyyy");
+        return dfmt.format(getReleaseDate());
+
+    }
+
+
+    public static Movie convertStringJsonForMovie(String jsonString) {
+        Movie movie = null;
+        try {
+            JSONObject json = new JSONObject(jsonString);
+            movie = parse(json);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return movie;
+    }
+
+    public static List<Movie> convertStringJsonForListOfMovie(String jsonString) {
+
+        JSONObject json = null;
+        List<Movie> movies = new ArrayList<>();
+
+        try {
+            json = new JSONObject(jsonString);
+            JSONArray results = json.getJSONArray("results");
+
+            if (results != null) {
+                for (int i = 0; i < results.length(); i++) {
+                    JSONObject jsonObject = results.getJSONObject(i);
+                    Movie movie = parse(jsonObject);
+                    if (movie != null) {
+                        movies.add(movie);
+                    }
+                }
+            }
+
+            return movies;
+
+        } catch (JSONException e) {
+            return null;
+        }
     }
 
 
@@ -221,6 +301,14 @@ public class Movie implements Parcelable {
                 movie.setIsVideo(jsonObject.getBoolean("video"));
             }
 
+            if (jsonObject.has("runtime")) {
+                movie.setRuntime(jsonObject.getInt("runtime"));
+            }
+
+            if (jsonObject.has("tagline")) {
+                movie.setTagline(jsonObject.getString("tagline"));
+            }
+
             return movie;
 
 
@@ -278,6 +366,8 @@ public class Movie implements Parcelable {
         voteCount = in.readInt();
         voteAverage = in.readInt();
         isVideo = in.readByte() != 0;
+        tagline = in.readString();
+        runtime = in.readInt();
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -312,5 +402,7 @@ public class Movie implements Parcelable {
         parcel.writeInt(voteCount);
         parcel.writeInt(voteAverage);
         parcel.writeByte((byte) (isVideo ? 1 : 0));
+        parcel.writeString(tagline);
+        parcel.writeInt(runtime);
     }
 }

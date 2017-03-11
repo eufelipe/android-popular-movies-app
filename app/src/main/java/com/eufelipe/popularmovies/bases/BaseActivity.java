@@ -1,16 +1,71 @@
 package com.eufelipe.popularmovies.bases;
 
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.eufelipe.popularmovies.R;
+import com.eufelipe.popularmovies.callbacks.TheMovieDbCallback;
+import com.eufelipe.popularmovies.models.Movie;
+import com.eufelipe.popularmovies.models.MovieReview;
+import com.eufelipe.popularmovies.models.MovieVideo;
+
+import java.util.List;
 
 
 /**
  * @description : class abstract com métodos globais a todas as activities
  * @author: Felipe Rosas <contato@eufelipe.com>
  */
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity implements TheMovieDbCallback {
 
-    Toast mToast;
+
+    protected Toast mToast;
+    protected Toolbar mToolbar;
+
+
+    /**
+     * @param textView
+     * @param value
+     */
+    protected void setTextView(TextView textView, String value) {
+        if (textView == null || value == null) {
+            return;
+        }
+        textView.setText(value);
+    }
+
+
+    /**
+     * @param view
+     * @param isShow
+     */
+    protected void show(View view, boolean isShow) {
+        if (view == null) {
+            return;
+        }
+        view.setVisibility(isShow ? View.VISIBLE : View.GONE);
+    }
+
+
+    protected void initializeToolbar(String title) {
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (mToolbar == null) {
+            return;
+        }
+        setSupportActionBar(mToolbar);
+        setTitle(title);
+        mToolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
+    }
+
+    protected void initializeToolbar(int resourceTitle) {
+        initializeToolbar(getString(resourceTitle));
+    }
+
 
     protected void showToast(int resourceId) {
         showToast(getString(resourceId));
@@ -30,4 +85,37 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestMovieSuccess(List<Movie> movies, Integer page) {
+
+    }
+
+    @Override
+    public void onRequestMoviesFailure(String error, String action) {
+
+    }
+
+
+    @Override
+    public void onRequestMovieSuccess(Movie movie) {
+
+    }
+
+    @Override
+    public void onRequestMoviesVideosSuccess(List<MovieVideo> movieVideos) {
+
+    }
+
+    @Override
+    public void onRequestMoviesReviewSuccess(List<MovieReview> movieReviews) {
+
+    }
 }

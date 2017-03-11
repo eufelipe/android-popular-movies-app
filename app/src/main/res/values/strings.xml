@@ -1,13 +1,23 @@
 <resources>
     <string name="app_name">Popular Movies</string>
     <string name="app_imageview_movie_description">Poster Image of The Movie</string>
+    <string name="app_imageview_video_description">Image Thumbnail of The Movie</string>
     <string name="app_error_request_server">An error has occurred!</string>
     <string name="app_error_not_internet">An error has occurred! Not access Internet</string>
     <string name="app_error_button">Try again</string>
+    <string name="app_error_movie_invalid">Invalid Movie =/</string>
 
     <string name="popular_movies">Popular Movies</string>
     <string name="top_rated_movies">Top rated Movies</string>
 
     <string name="menu_already_ordered">Already ordered this way =)</string>
+
+    <string name="overview_title">Overview:</string>
+
+    <string name="release_date">Date:</string>
+    <string name="vote_average">Vote Average:</string>
+    <string name="runtime">Runtime:</string>
+    <string name="trailers">Trailers:</string>
+    <string name="reviews">Reviews:</string>
 
 </resources>

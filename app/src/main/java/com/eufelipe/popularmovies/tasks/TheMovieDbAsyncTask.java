@@ -21,14 +21,16 @@ import java.net.URL;
 public class TheMovieDbAsyncTask extends AsyncTask<URL, Void, String> {
 
     AsyncTaskCallback callback;
+    String action;
 
     /**
      * @param callback
      * @description : Ao instanciar esta classe, é obrigatorio passar um objeto AsyncTaskCallback
      * para realizar a função de callback do response da requisição
      */
-    public TheMovieDbAsyncTask(AsyncTaskCallback callback) {
+    public TheMovieDbAsyncTask(AsyncTaskCallback callback, String action) {
         this.callback = callback;
+        this.action = action;
     }
 
     @Override
@@ -50,7 +52,7 @@ public class TheMovieDbAsyncTask extends AsyncTask<URL, Void, String> {
         String errorInternet = App.mGlobalContext.getString(R.string.app_error_not_internet);
 
         if (s != null && !s.equals(errorInternet)) {
-            callback.onAsyncTaskSuccess(s);
+            callback.onAsyncTaskSuccess(s, action);
             return;
         }
 
@@ -59,8 +61,7 @@ public class TheMovieDbAsyncTask extends AsyncTask<URL, Void, String> {
             error = errorInternet;
         }
 
-        callback.onAsyncTaskError(error);
+        callback.onAsyncTaskError(error, action);
     }
-
 
 }
