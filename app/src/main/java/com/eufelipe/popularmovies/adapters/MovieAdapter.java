@@ -6,6 +6,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 
 import com.eufelipe.popularmovies.R;
 import com.eufelipe.popularmovies.models.Movie;
@@ -14,6 +19,7 @@ import com.eufelipe.popularmovies.viewholders.MovieViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -24,9 +30,12 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public final int VIEW_TYPE_LOADER = 1;
     private boolean isShowLoader = true;
 
+    private Context mContext;
 
-    public MovieAdapter(Context mContext, List<Movie> movieList) {
+
+    public MovieAdapter(Context context, List<Movie> movieList) {
         this.movieList = movieList;
+        this.mContext = context;
     }
 
     @Override
@@ -49,6 +58,10 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof MovieViewHolder) {
+
+            Animation animation = AnimationUtils.loadAnimation(mContext, android.R.anim.fade_in);
+            holder.itemView.startAnimation(animation);
+
             if (movieList.size() > 0 && position < movieList.size()) {
                 Movie movie = movieList.get(position);
                 ((MovieViewHolder) holder).bind(movie);
@@ -104,5 +117,16 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public List<Movie> getItems() {
         return movieList;
     }
+
+
+    /**
+     * @param holder
+     */
+    @Override
+    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.itemView.clearAnimation();
+    }
+
 
 }

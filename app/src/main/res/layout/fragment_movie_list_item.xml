@@ -10,6 +10,7 @@
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
         android:contentDescription="@string/app_imageview_movie_description"
+        android:scaleType="fitXY"
         android:src="@mipmap/ic_movie_thumb" />
 
 </LinearLayout>

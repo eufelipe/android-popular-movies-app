@@ -1,18 +1,14 @@
 package com.eufelipe.popularmovies.adapters;
 
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.eufelipe.popularmovies.R;
-import com.eufelipe.popularmovies.models.Movie;
 import com.eufelipe.popularmovies.models.MovieVideo;
-import com.eufelipe.popularmovies.viewholders.LoaderViewHolder;
 import com.eufelipe.popularmovies.viewholders.MovieVideoViewHolder;
-import com.eufelipe.popularmovies.viewholders.MovieViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;

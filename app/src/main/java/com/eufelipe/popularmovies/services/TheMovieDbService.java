@@ -3,7 +3,6 @@ package com.eufelipe.popularmovies.services;
 
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.util.Log;
 
 import com.eufelipe.popularmovies.application.App;
@@ -15,13 +14,8 @@ import com.eufelipe.popularmovies.models.MovieReview;
 import com.eufelipe.popularmovies.models.MovieVideo;
 import com.eufelipe.popularmovies.tasks.TheMovieDbAsyncTask;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -46,9 +40,6 @@ public class TheMovieDbService implements AsyncTaskCallback {
 
 
     public Integer page = 1;
-    public Integer totalResults = 0;
-    public Integer totalPages = 0;
-
     public Boolean isRequest = false;
 
 

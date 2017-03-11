@@ -103,11 +103,6 @@ public class MovieActivity extends BaseActivity {
             finish();
         }
 
-        show(mLoaderInfo, true);
-        getTheMovieDbService().movie(mMovie.getId());
-        getTheMovieDbService().videos(mMovie.getId());
-        getTheMovieDbService().reviews(mMovie.getId());
-
         initializeToolbar(mMovie.getTitle());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -144,6 +139,17 @@ public class MovieActivity extends BaseActivity {
         mVoteAverageTextView = (TextView) findViewById(R.id.tv_vote_average);
         mRuntimeTextView = (TextView) findViewById(R.id.tv_runtime);
 
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getTheMovieDbService().movie(mMovie.getId());
+                getTheMovieDbService().videos(mMovie.getId());
+                getTheMovieDbService().reviews(mMovie.getId());
+            }
+
+        });
+        thread.start();
+
         bindViews();
 
 
@@ -151,17 +157,37 @@ public class MovieActivity extends BaseActivity {
 
     private void bindViews() {
 
-        Picasso.with(mContext)
-                .load(mMovie.getBackdropImage())
-                .into(backdropTarget);
+        show(mInfoView, false);
 
-        Picasso.with(mContext)
-                .load(mMovie.getPosterImage())
-                .into(mPosterImageView);
+        updateImageViews();
 
         mCollapsingToolbar.setTitle(mMovie.getTitle());
 
         setTextView(mOverviewTextView, mMovie.getOverview());
+
+    }
+
+    private void updateImageViews() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Picasso.with(mContext)
+                                .load(mMovie.getBackdropImage())
+                                .into(backdropTarget);
+
+                        Picasso.with(mContext)
+                                .load(mMovie.getPosterImage())
+                                .into(mPosterImageView);
+
+                    }
+                });
+            }
+        });
+        thread.start();
 
     }
 
@@ -216,8 +242,11 @@ public class MovieActivity extends BaseActivity {
 
 
     @Override
-    public void onRequestMovieSuccess(Movie movie) {
+    public void onRequestMovieSuccess(final Movie movie) {
+
         show(mLoaderInfo, false);
+        show(mInfoView, true);
+
         mMovie = movie;
         setTextView(mRuntimeTextView, String.valueOf(mMovie.getRuntime()));
         setTextView(mReleaseDateTextView, mMovie.getReleaseDateDisplay());

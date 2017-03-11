@@ -69,7 +69,7 @@ public class MainActivity extends BaseActivity {
 
     boolean isFirstRequest = true;
 
-    int subtitle = R.string.popular_movies;
+    int title = R.string.popular_movies;
 
     /**
      * Restore
@@ -78,6 +78,12 @@ public class MainActivity extends BaseActivity {
     Parcelable mMovieListParceble;
 
     private boolean isEnableLoadMore = true;
+
+
+    /**
+     * Firula
+     */
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,9 +108,9 @@ public class MainActivity extends BaseActivity {
         });
 
         if (savedInstanceState != null) {
-            int subtitleSaved = savedInstanceState.getInt(Constants.SUBTITLE_STATE_KEY, -1);
-            if (subtitleSaved > -1) {
-                subtitle = subtitleSaved;
+            int titleSaved = savedInstanceState.getInt(Constants.TITLE_STATE_KEY, -1);
+            if (titleSaved > -1) {
+                title = titleSaved;
             }
 
             int order = savedInstanceState.getInt(Constants.MOVIE_ORDER_STATE_KEY, -1);
@@ -121,7 +127,7 @@ public class MainActivity extends BaseActivity {
         mLoaderView.setVisibility(View.VISIBLE);
 
         requestMoviesOnApi(page, listMovieCategory);
-        setSubtitleToolbar(listMovieCategory);
+        settitleToolbar(listMovieCategory);
 
     }
 
@@ -213,6 +219,7 @@ public class MainActivity extends BaseActivity {
 
         mRecyclerView.addOnScrollListener(onScrollListener);
 
+
     }
 
 
@@ -297,7 +304,7 @@ public class MainActivity extends BaseActivity {
         mErrorView.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.GONE);
 
-        setSubtitleToolbar(order);
+        settitleToolbar(order);
 
         listMovieCategory = order;
         page = 1;
@@ -317,7 +324,7 @@ public class MainActivity extends BaseActivity {
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         mMovieListParceble = mGridLayoutManager.onSaveInstanceState();
         savedInstanceState.putParcelable(Constants.MOVIE_LIST_STATE_KEY, mMovieListParceble);
-        savedInstanceState.putInt(Constants.SUBTITLE_STATE_KEY, subtitle);
+        savedInstanceState.putInt(Constants.TITLE_STATE_KEY, title);
         savedInstanceState.putInt(Constants.MOVIE_ORDER_STATE_KEY, listMovieCategory == ListMovieCategory.POPULAR ? 1 : 2);
 
         super.onSaveInstanceState(savedInstanceState);
@@ -333,7 +340,7 @@ public class MainActivity extends BaseActivity {
 
         if (savedInstanceState != null) {
             mMovieListParceble = savedInstanceState.getParcelable(Constants.MOVIE_LIST_STATE_KEY);
-            subtitle = savedInstanceState.getInt(Constants.SUBTITLE_STATE_KEY);
+            title = savedInstanceState.getInt(Constants.TITLE_STATE_KEY);
             int order = savedInstanceState.getInt(Constants.MOVIE_ORDER_STATE_KEY);
             listMovieCategory = ListMovieCategory.POPULAR;
             if (order == 2) {
@@ -354,18 +361,18 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    public void setSubtitleToolbar(ListMovieCategory listMovieCategory) {
+    public void settitleToolbar(ListMovieCategory listMovieCategory) {
         if (mToolbar == null) {
             return;
         }
 
-        int color = ContextCompat.getColor(mContext, R.color.colorPurple);
+        int color = ContextCompat.getColor(mContext, R.color.colorGrayDark);
         if (listMovieCategory == ListMovieCategory.TOP_RATED) {
             color = ContextCompat.getColor(mContext, R.color.colorOrange);
         }
         mToolbar.setBackgroundColor(color);
-        subtitle = (listMovieCategory == ListMovieCategory.POPULAR ? R.string.popular_movies : R.string.top_rated_movies);
-        mToolbar.setSubtitle(subtitle);
+        title = (listMovieCategory == ListMovieCategory.POPULAR ? R.string.popular_movies : R.string.top_rated_movies);
+        mToolbar.setTitle(title);
     }
 
 }
