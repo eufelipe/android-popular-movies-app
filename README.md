@@ -14,8 +14,9 @@ Você também precisará fornecer algumas informações pessoais para completar 
 
 Com a **API KEY** você deve criar um arquivo **secret.xml** em **res/values** com seguinte informação: 
 
+```java
 <string name="api_key_the_movie_db"> ---SUA API KEY--- </string>
-
+```
 
 E pronto =)
 
