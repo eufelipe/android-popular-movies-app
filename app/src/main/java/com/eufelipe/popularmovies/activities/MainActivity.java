@@ -93,7 +93,6 @@ public class MainActivity extends BaseActivity {
      * Firula
      */
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -262,12 +261,14 @@ public class MainActivity extends BaseActivity {
             for (Movie movie : movieList) {
                 mMovieAdapter.addItem(mMovieAdapter.getItemCount(), movie);
             }
+            // Para de piscar o fadeIn
+            mMovieAdapter.setIsShowAnimation(false);
         }
 
     }
 
     @Override
-    public void onRequestMoviesFailure(String error, String action) {
+    public void onRequestMoviesFailure(String error) {
 
         show(mLoaderView, false);
         show(mRecyclerView, false);
@@ -383,6 +384,5 @@ public class MainActivity extends BaseActivity {
             mGridLayoutManager.onRestoreInstanceState(mMovieListParceble);
         }
     }
-
 
 }

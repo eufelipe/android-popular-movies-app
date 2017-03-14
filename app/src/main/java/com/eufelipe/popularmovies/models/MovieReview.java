@@ -3,6 +3,8 @@ package com.eufelipe.popularmovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,9 +14,16 @@ import java.util.List;
 
 public class MovieReview implements Parcelable {
 
+    @SerializedName("id")
     private String id;
+
+    @SerializedName("author")
     private String author;
+
+    @SerializedName("content")
     private String content;
+
+    @SerializedName("url")
     private String url;
 
     private MovieReview() {
@@ -87,57 +96,5 @@ public class MovieReview implements Parcelable {
         parcel.writeString(author);
         parcel.writeString(content);
         parcel.writeString(url);
-    }
-
-    public static List<MovieReview> convertStringJsonForMovieReviews(String jsonString) {
-        JSONObject json = null;
-        List<MovieReview> movieReviews = new ArrayList<>();
-
-        try {
-            json = new JSONObject(jsonString);
-            JSONArray results = json.getJSONArray("results");
-
-            if (results != null) {
-                for (int i = 0; i < results.length(); i++) {
-                    JSONObject jsonObject = results.getJSONObject(i);
-                    MovieReview movieReview = parse(jsonObject);
-                    if (movieReview != null) {
-                        movieReviews.add(movieReview);
-                    }
-                }
-            }
-
-            return movieReviews;
-
-        } catch (JSONException e) {
-            return null;
-        }
-    }
-
-    private static MovieReview parse(JSONObject jsonObject) {
-
-        MovieReview movieReview = new MovieReview();
-
-        try {
-            if (jsonObject.has("id")) {
-                movieReview.setId(jsonObject.getString("id"));
-            }
-
-            if (jsonObject.has("author")) {
-                movieReview.setAuthor(jsonObject.getString("author"));
-            }
-
-            if (jsonObject.has("content")) {
-                movieReview.setContent(jsonObject.getString("content"));
-            }
-            if (jsonObject.has("url")) {
-                movieReview.setUrl(jsonObject.getString("url"));
-            }
-
-        } catch (JSONException e) {
-            return null;
-        }
-
-        return movieReview;
     }
 }

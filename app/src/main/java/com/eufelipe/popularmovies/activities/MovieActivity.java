@@ -10,7 +10,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -41,42 +40,46 @@ public class MovieActivity extends BaseActivity {
 
     private TheMovieDbService theMovieDbService = null;
 
-    @BindView(R.id.collapsing)
-     CollapsingToolbarLayout mCollapsingToolbar;
-
-    @BindView(R.id.iv_backdrop)
-     ImageView mBackdropImageView;
-
-    @BindView(R.id.iv_poster)
-     ImageView mPosterImageView;
-
-    @BindView(R.id.fb_favorite)
-     FloatingActionButton mFbFavorite;
-
     private boolean isFavorite = false;
 
+    private MovieReviewAdapter mReviewAdapter;
+    private MovieVideoAdapter mVideoAdapter;
+
+    private Context mContext;
+
+
+    @BindView(R.id.collapsing)
+    CollapsingToolbarLayout mCollapsingToolbar;
+
+    @BindView(R.id.iv_backdrop)
+    ImageView mBackdropImageView;
+
+    @BindView(R.id.iv_poster)
+    ImageView mPosterImageView;
+
+    @BindView(R.id.fb_favorite)
+    FloatingActionButton mFbFavorite;
 
     /**
      * Infos
      */
     @BindView(R.id.tv_overview)
-     TextView mOverviewTextView;
+    TextView mOverviewTextView;
 
     @BindView(R.id.tv_release_date)
-     TextView mReleaseDateTextView;
+    TextView mReleaseDateTextView;
 
     @BindView(R.id.tv_vote_average)
-     TextView mVoteAverageTextView;
+    TextView mVoteAverageTextView;
 
     @BindView(R.id.tv_runtime)
-     TextView mRuntimeTextView;
+    TextView mRuntimeTextView;
 
     @BindView(R.id.ll_info)
-     LinearLayout mInfoView;
+    LinearLayout mInfoView;
 
     @BindView(R.id.pb_info)
-     ProgressBar mLoaderInfo;
-
+    ProgressBar mLoaderInfo;
 
     /**
      * Reviews
@@ -87,9 +90,6 @@ public class MovieActivity extends BaseActivity {
     @BindView(R.id.rv_reviews)
     RecyclerView mReviewsRecyclerView;
 
-    private MovieReviewAdapter mReviewAdapter;
-
-
     /**
      * Videos
      */
@@ -98,10 +98,6 @@ public class MovieActivity extends BaseActivity {
 
     @BindView(R.id.rv_trailers)
     RecyclerView mTrailersRecyclerView;
-
-    private MovieVideoAdapter mVideoAdapter;
-
-    private Context mContext;
 
 
     /**
@@ -236,9 +232,9 @@ public class MovieActivity extends BaseActivity {
         show(mInfoView, true);
 
         mMovie = movie;
-        setTextView(mRuntimeTextView, String.valueOf(mMovie.getRuntime()));
+        setTextView(mRuntimeTextView, mMovie.getRuntimeDisplay());
         setTextView(mReleaseDateTextView, mMovie.getReleaseDateDisplay());
-        setTextView(mVoteAverageTextView, String.valueOf(mMovie.getVoteAverage()));
+        setTextView(mVoteAverageTextView, mMovie.getVoteAverageDisplay());
 
     }
 
@@ -269,9 +265,11 @@ public class MovieActivity extends BaseActivity {
     }
 
     @Override
-    public void onRequestMoviesFailure(String error, String action) {
+    public void onRequestMoviesFailure(String error) {
         show(mLoaderInfo, false);
-        showToast("Ocorreu um erro:  " + error + " - na action " + action);
+        if (error != null) {
+            showToast(error);
+        }
     }
 
 
@@ -287,6 +285,5 @@ public class MovieActivity extends BaseActivity {
         Picasso.with(this).cancelRequest(backdropTarget);
         super.onDestroy();
     }
-
 
 }

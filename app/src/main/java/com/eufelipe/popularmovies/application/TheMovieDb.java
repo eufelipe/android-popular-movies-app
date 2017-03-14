@@ -1,20 +1,18 @@
-package com.eufelipe.popularmovies.callbacks;
+package com.eufelipe.popularmovies.application;
 
 import com.eufelipe.popularmovies.models.Movie;
 import com.eufelipe.popularmovies.models.MovieReview;
 import com.eufelipe.popularmovies.models.MovieVideo;
 
-import org.json.JSONObject;
-
 import java.util.List;
 
 /**
- * @description : Interface com os métodos de retorno e stage das requisições na Api The Movie Db
+ * @description : Interface com os métodos de retorno e stage das requisições na Api The MoviesCallback Db
  * @author: Felipe Rosas <contato@eufelipe.com>
  */
 
 
-public interface TheMovieDbCallback {
+public interface TheMovieDb {
     /**
      * @param movies
      * @description : Este método será chamado quando a requisição feitar tiver sucesso
@@ -48,6 +46,6 @@ public interface TheMovieDbCallback {
     /**
      * @description: Este método será chamado quando ocorrer uma falha
      */
-    void onRequestMoviesFailure(String error, String action);
+    void onRequestMoviesFailure(String error);
 
 }

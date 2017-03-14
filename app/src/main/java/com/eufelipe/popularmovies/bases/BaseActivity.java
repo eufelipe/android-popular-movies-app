@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import com.eufelipe.popularmovies.R;
 import com.eufelipe.popularmovies.application.ListMovieCategory;
-import com.eufelipe.popularmovies.callbacks.TheMovieDbCallback;
+import com.eufelipe.popularmovies.application.TheMovieDb;
 import com.eufelipe.popularmovies.models.Movie;
 import com.eufelipe.popularmovies.models.MovieReview;
 import com.eufelipe.popularmovies.models.MovieVideo;
@@ -22,7 +22,7 @@ import java.util.List;
  * @description : class abstract com métodos globais a todas as activities
  * @author: Felipe Rosas <contato@eufelipe.com>
  */
-public abstract class BaseActivity extends AppCompatActivity implements TheMovieDbCallback {
+public abstract class BaseActivity extends AppCompatActivity implements TheMovieDb {
 
     protected int title = R.string.popular_movies;
 
@@ -116,7 +116,7 @@ public abstract class BaseActivity extends AppCompatActivity implements TheMovie
     }
 
     @Override
-    public void onRequestMoviesFailure(String error, String action) {
+    public void onRequestMoviesFailure(String error) {
 
     }
 

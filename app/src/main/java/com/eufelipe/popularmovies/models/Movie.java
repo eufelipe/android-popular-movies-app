@@ -3,6 +3,11 @@ package com.eufelipe.popularmovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.eufelipe.popularmovies.R;
+import com.eufelipe.popularmovies.application.App;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,21 +28,51 @@ public class Movie implements Parcelable {
 
     private final static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+    @SerializedName("id")
     private int id;
+
+    @SerializedName("adult")
     private boolean isAdult;
+
+    @SerializedName("overview")
     private String overview;
+
+    @SerializedName("release_date")
     private Date releaseDate;
+
+    @SerializedName("original_title")
     private String originalTitle;
+
+    @SerializedName("original_language")
     private String originalLanguage;
+
+    @SerializedName("title")
     private String title;
+
+    @SerializedName("poster_path")
     private String poster;
+
+    @SerializedName("backdrop_path")
     private String backdrop;
+
+    @SerializedName("popularity")
     private double popularity;
+
+    @SerializedName("vote_count")
     private int voteCount;
-    private int voteAverage;
+
+    @SerializedName("vote_average")
+    private double voteAverage;
+
+    @SerializedName("video")
     private boolean isVideo;
 
+    @SerializedName("tagline")
+    @Expose
     private String tagline;
+
+    @SerializedName("runtime")
+    @Expose
     private int runtime;
 
 
@@ -149,11 +184,11 @@ public class Movie implements Parcelable {
         return this;
     }
 
-    public Integer getVoteAverage() {
+    public double getVoteAverage() {
         return voteAverage;
     }
 
-    private Movie setVoteAverage(Integer voteAverage) {
+    private Movie setVoteAverage(double voteAverage) {
         this.voteAverage = voteAverage;
         return this;
     }
@@ -185,6 +220,14 @@ public class Movie implements Parcelable {
         return this;
     }
 
+    public String getRuntimeDisplay() {
+        if (getRuntime() == 0) {
+            return null;
+        }
+        String min = App.mGlobalContext.getString(R.string.min);
+        return String.format("%d %s", runtime, min);
+    }
+
 
     public String getReleaseDateDisplay() {
         DateFormat dfmt = new SimpleDateFormat("MMMM',' yyyy");
@@ -192,132 +235,14 @@ public class Movie implements Parcelable {
 
     }
 
-
-    public static Movie convertStringJsonForMovie(String jsonString) {
-        Movie movie = null;
-        try {
-            JSONObject json = new JSONObject(jsonString);
-            movie = parse(json);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return movie;
-    }
-
-    public static List<Movie> convertStringJsonForListOfMovie(String jsonString) {
-
-        JSONObject json = null;
-        List<Movie> movies = new ArrayList<>();
-
-        try {
-            json = new JSONObject(jsonString);
-            JSONArray results = json.getJSONArray("results");
-
-            if (results != null) {
-                for (int i = 0; i < results.length(); i++) {
-                    JSONObject jsonObject = results.getJSONObject(i);
-                    Movie movie = parse(jsonObject);
-                    if (movie != null) {
-                        movies.add(movie);
-                    }
-                }
-            }
-
-            return movies;
-
-        } catch (JSONException e) {
-            return null;
-        }
-    }
-
-
-    /**
-     * @param jsonObject
-     * @return
-     * @description : Método para realizar o parse de JSONObject para Movie
-     */
-    private static Movie parse(JSONObject jsonObject) {
-
-        Movie movie = new Movie();
-        try {
-
-            if (jsonObject.has("id")) {
-                movie.setId(jsonObject.getInt("id"));
-            }
-
-            if (jsonObject.has("poster_path")) {
-                movie.setPoster(jsonObject.getString("poster_path"));
-            }
-
-            if (jsonObject.has("adult")) {
-                movie.setAdult(jsonObject.getBoolean("adult"));
-            }
-
-            if (jsonObject.has("overview")) {
-                movie.setOverview(jsonObject.getString("overview"));
-            }
-
-            if (jsonObject.has("release_date")) {
-                String releaseDate = jsonObject.getString("release_date");
-                Date date = null;
-                try {
-                    date = simpleDateFormat.parse(releaseDate);
-
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                movie.setReleaseDate(date);
-            }
-
-            if (jsonObject.has("original_title")) {
-                movie.setOriginalTitle(jsonObject.getString("original_title"));
-            }
-
-            if (jsonObject.has("original_language")) {
-                movie.setOriginalLanguage(jsonObject.getString("original_language"));
-            }
-
-            if (jsonObject.has("title")) {
-                movie.setTitle(jsonObject.getString("title"));
-            }
-            if (jsonObject.has("backdrop_path")) {
-                movie.setBackdrop(jsonObject.getString("backdrop_path"));
-            }
-
-            if (jsonObject.has("popularity")) {
-                movie.setPopularity(jsonObject.getDouble("popularity"));
-            }
-
-            if (jsonObject.has("vote_count")) {
-                movie.setVoteCount(jsonObject.getInt("vote_count"));
-            }
-
-            if (jsonObject.has("vote_average")) {
-                movie.setVoteAverage(jsonObject.getInt("vote_average"));
-            }
-            if (jsonObject.has("video")) {
-                movie.setIsVideo(jsonObject.getBoolean("video"));
-            }
-
-            if (jsonObject.has("runtime")) {
-                movie.setRuntime(jsonObject.getInt("runtime"));
-            }
-
-            if (jsonObject.has("tagline")) {
-                movie.setTagline(jsonObject.getString("tagline"));
-            }
-
-            return movie;
-
-
-        } catch (JSONException e) {
+    public String getVoteAverageDisplay() {
+        if (getVoteAverage() == 0) {
             return null;
         }
 
-    }
+        return String.valueOf(getVoteAverage());
 
+    }
 
     /**
      * Método para montar a imagem
@@ -362,7 +287,7 @@ public class Movie implements Parcelable {
         backdrop = in.readString();
         popularity = in.readDouble();
         voteCount = in.readInt();
-        voteAverage = in.readInt();
+        voteAverage = in.readDouble();
         isVideo = in.readByte() != 0;
         tagline = in.readString();
         runtime = in.readInt();
@@ -398,7 +323,7 @@ public class Movie implements Parcelable {
         parcel.writeString(backdrop);
         parcel.writeDouble(popularity);
         parcel.writeInt(voteCount);
-        parcel.writeInt(voteAverage);
+        parcel.writeDouble(voteAverage);
         parcel.writeByte((byte) (isVideo ? 1 : 0));
         parcel.writeString(tagline);
         parcel.writeInt(runtime);

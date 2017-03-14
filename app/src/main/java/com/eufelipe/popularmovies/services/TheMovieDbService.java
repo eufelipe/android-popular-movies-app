@@ -1,54 +1,80 @@
 package com.eufelipe.popularmovies.services;
 
 
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.util.Log;
-
+import com.eufelipe.popularmovies.R;
 import com.eufelipe.popularmovies.application.App;
-import com.eufelipe.popularmovies.application.Constants;
 import com.eufelipe.popularmovies.application.ListMovieCategory;
-import com.eufelipe.popularmovies.callbacks.AsyncTaskCallback;
-import com.eufelipe.popularmovies.callbacks.TheMovieDbCallback;
+import com.eufelipe.popularmovies.application.TheMovieDb;
+import com.eufelipe.popularmovies.bases.BaseService;
 import com.eufelipe.popularmovies.models.Movie;
 import com.eufelipe.popularmovies.models.MovieReview;
 import com.eufelipe.popularmovies.models.MovieVideo;
-import com.eufelipe.popularmovies.tasks.TheMovieDbAsyncTask;
+import com.eufelipe.popularmovies.callbacks.MoviesCallback;
+import com.eufelipe.popularmovies.callbacks.ReviewsCallback;
+import com.eufelipe.popularmovies.callbacks.VideosCallback;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 /**
- * @description : class responsável pelas consultas na API The Movie DB
+ * @description : class responsável pelas consultas na API The MoviesCallback DB
  * @author: Felipe Rosas <contato@eufelipe.com>
  */
 
-public class TheMovieDbService implements AsyncTaskCallback {
+public class TheMovieDbService extends BaseService {
 
     private final String TAG = TheMovieDbService.class.getSimpleName();
 
-    private final String THE_MOVIE_DB_ACTION_POPULAR = "popular";
-    private final String THE_MOVIE_DB_ACTION_TOP_RATED = "top_rated";
-    private final String THE_MOVIE_DB_ACTION_MOVIE = "movie";
-    private final String THE_MOVIE_DB_ACTION_VIDEOS = "videos";
-    private final String THE_MOVIE_DB_ACTION_REVIEWS = "reviews";
     private final String THE_MOVIE_DB_LANGUAGE = "pt-BR";
 
-    private final TheMovieDbCallback callback;
-
+    private final TheMovieDb callback;
 
     private Integer page = 1;
     private Boolean isRequest = false;
 
+    private String errorNotNetwork = null;
+
+
+    /**
+     * @return
+     */
+    public Boolean getRequest() {
+        return isRequest;
+    }
+
+    /**
+     * @param request
+     * @return
+     */
+    public void setRequest(Boolean request) {
+        isRequest = request;
+    }
+
+    /**
+     * @param page
+     */
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    /**
+     * @return
+     */
+    public Integer getPage() {
+        return page;
+    }
 
     /**
      * @param callback
-     * @description : Ao instanciar esta classe, é obrigatorio passar um objeto TheMovieDbCallback
+     * @description : Ao instanciar esta classe, é obrigatorio passar um objeto TheMovieDb
      */
-    public TheMovieDbService(TheMovieDbCallback callback) {
+    public TheMovieDbService(TheMovieDb callback) {
         this.callback = callback;
+        this.errorNotNetwork = App.mGlobalContext.getString(R.string.app_error_not_internet);
     }
 
 
@@ -57,23 +83,59 @@ public class TheMovieDbService implements AsyncTaskCallback {
      *
      * @param page
      * @param listMovieCategory
-     * @description : Método responsável por iniciar a requisição assíncrona a API do The Movie Db
+     * @description : Método responsável por iniciar a requisição assíncrona a API do The MoviesCallback Db
      */
     public void movies(Integer page, ListMovieCategory listMovieCategory) {
-        if (isRequest) {
+        if (getRequest()) {
+            return;
+        }
+        setRequest(true);
+        setPage(page);
+
+        String language = getLanguage();
+
+        if (listMovieCategory == ListMovieCategory.TOP_RATED) {
+            Call<MoviesCallback> call = api(language).topRated(this.page);
+            enqueue(call);
+
+        } else if (listMovieCategory == ListMovieCategory.POPULAR) {
+            Call<MoviesCallback> call = api(getLanguage()).popular(this.page);
+            enqueue(call);
+        }
+    }
+
+
+    /**
+     * Método responsável pels requisições de filmes popular e top_rated
+     *
+     * @param call
+     */
+    protected void enqueue(Call<MoviesCallback> call) {
+        if (call == null) {
             return;
         }
 
-        isRequest = true;
-        this.page = page;
+        requestLogger(call, null);
 
-        String action = THE_MOVIE_DB_ACTION_POPULAR;
+        call.enqueue(new Callback<MoviesCallback>() {
+            @Override
+            public void onResponse(Call<MoviesCallback> call, Response<MoviesCallback> response) {
+                setRequest(false);
 
-        if (listMovieCategory == ListMovieCategory.TOP_RATED) {
-            action = THE_MOVIE_DB_ACTION_TOP_RATED;
-        }
+                if (response.body() == null || response.body().getResults() == null) {
+                    callback.onRequestMoviesFailure(null);
+                }
+                List<Movie> results = response.body().getResults();
+                callback.onRequestMovieSuccess(results, getPage());
 
-        startTask(action, getUrl(action, this.page), false);
+            }
+
+            @Override
+            public void onFailure(Call<MoviesCallback> call, Throwable t) {
+                setRequest(false);
+                callback.onRequestMoviesFailure(errorNotNetwork);
+            }
+        });
     }
 
 
@@ -84,8 +146,24 @@ public class TheMovieDbService implements AsyncTaskCallback {
      * @description : Método para pegar as informações de 1 movie
      */
     public void movie(Integer movieId) {
-        String action = movieId.toString();
-        startTask(THE_MOVIE_DB_ACTION_MOVIE, getUrl(action), true);
+        Call<Movie> call = api().movie(movieId);
+        requestLogger(call, null);
+        call.enqueue(new Callback<Movie>() {
+            @Override
+            public void onResponse(Call<Movie> call, Response<Movie> response) {
+
+                if (response.body() == null) {
+                    callback.onRequestMoviesFailure(null);
+                }
+                Movie movie = response.body();
+                callback.onRequestMovieSuccess(movie);
+            }
+
+            @Override
+            public void onFailure(Call<Movie> call, Throwable t) {
+                callback.onRequestMoviesFailure(errorNotNetwork);
+            }
+        });
     }
 
 
@@ -93,156 +171,64 @@ public class TheMovieDbService implements AsyncTaskCallback {
      * @param movieId
      */
     public void reviews(Integer movieId) {
-        String action = String.format("%s/%s", movieId.toString(), THE_MOVIE_DB_ACTION_REVIEWS);
-        startTask(action, getUrl(action), true);
+        Call<ReviewsCallback> call = api().reviews(movieId);
+        requestLogger(call, null);
+        call.enqueue(new Callback<ReviewsCallback>() {
+            @Override
+            public void onResponse(Call<ReviewsCallback> call, Response<ReviewsCallback> response) {
+                if (response.body() == null || response.body().getResults() == null) {
+                    callback.onRequestMoviesFailure(null);
+                }
+                List<MovieReview> results = response.body().getResults();
+
+                callback.onRequestMoviesReviewSuccess(results);
+            }
+
+            @Override
+            public void onFailure(Call<ReviewsCallback> call, Throwable t) {
+                callback.onRequestMoviesFailure(null);
+            }
+        });
     }
 
     /**
      * @param movieId
      */
     public void videos(Integer movieId) {
-        String action = String.format("%s/%s", movieId.toString(), THE_MOVIE_DB_ACTION_VIDEOS);
-        startTask(action, getUrl(action), true);
-    }
-
-
-    private void startTask(String action, URL url, boolean useParallelExecution) {
-
-        Log.d(TAG, "----- Request : " + action + " -  " + url.toString());
-
-        TheMovieDbAsyncTask task = new TheMovieDbAsyncTask(this, action);
-        if (useParallelExecution) {
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
-        } else {
-            task.execute(url);
-        }
-
-    }
-
-    /**
-     * @param jsonString
-     * @description : Retorno de sucesso da class TheMovieDbAsyncTask
-     */
-    @Override
-    public void onAsyncTaskSuccess(String jsonString, String action) {
-        isRequest = false;
-
-        if (action.contains("/")) {
-            String[] split = action.split("/");
-            action = split[1];
-        }
-
-        switch (action) {
-            case THE_MOVIE_DB_ACTION_POPULAR:
-            case THE_MOVIE_DB_ACTION_TOP_RATED:
-
-                List<Movie> movies = Movie.convertStringJsonForListOfMovie(jsonString);
-                if (movies != null) {
-                    callback.onRequestMovieSuccess(movies, this.page);
-                } else {
-                    callback.onRequestMoviesFailure(null, action);
+        Call<VideosCallback> call = api().videos(movieId);
+        requestLogger(call, null);
+        call.enqueue(new Callback<VideosCallback>() {
+            @Override
+            public void onResponse(Call<VideosCallback> call, Response<VideosCallback> response) {
+                if (response.body() == null || response.body().getResults() == null) {
+                    callback.onRequestMoviesFailure(null);
                 }
-
-                break;
-            case THE_MOVIE_DB_ACTION_MOVIE:
-                Movie movie = Movie.convertStringJsonForMovie(jsonString);
-                if (movie != null) {
-                    callback.onRequestMovieSuccess(movie);
-                } else {
-                    callback.onRequestMoviesFailure(null, action);
-                }
-                break;
-            case THE_MOVIE_DB_ACTION_REVIEWS:
-                List<MovieReview> movieReviews = MovieReview.convertStringJsonForMovieReviews(jsonString);
-                if (movieReviews != null) {
-                    callback.onRequestMoviesReviewSuccess(movieReviews);
-                } else {
-                    callback.onRequestMoviesFailure(null, action);
-                }
-                break;
-
-
-            case THE_MOVIE_DB_ACTION_VIDEOS:
-                List<MovieVideo> movieVideos = MovieVideo.convertStringJsonForMovieVideo(jsonString);
-                if (movieVideos != null) {
-                    callback.onRequestMoviesVideosSuccess(movieVideos);
-                } else {
-                    callback.onRequestMoviesFailure(null, action);
-                }
-                break;
-        }
-    }
-
-
-    /**
-     * @description : Retorno de Falha ou Erro da class TheMovieDbAsyncTask
-     */
-    @Override
-    public void onAsyncTaskError(String error, String action) {
-        isRequest = false;
-        callback.onRequestMoviesFailure(error, action);
-    }
-
-    /**
-     * @param action
-     * @return
-     */
-
-    private URL getUrl(String action) {
-        return getUrl(action, null);
-    }
-
-
-    /**
-     * @param action
-     * @param page
-     * @return
-     * @description : Método helper para montar a url de consulta da API The Movie Db
-     */
-
-    private URL getUrl(String action, Integer page) {
-
-        Boolean appendlanguage = false;
-
-        if (action.equals(THE_MOVIE_DB_ACTION_POPULAR) ||
-                action.equals(THE_MOVIE_DB_ACTION_TOP_RATED)) {
-            appendlanguage = true;
-        }
-
-        Uri.Builder build = Uri.parse(Constants.API_URL).buildUpon();
-        build.appendQueryParameter("api_key", App.getTheMovieDbKey());
-
-        if (appendlanguage) {
-            String languageCode = THE_MOVIE_DB_LANGUAGE;
-
-            String language = Locale.getDefault().getLanguage();
-            String country = Locale.getDefault().getCountry();
-
-            if (language != null && country != null) {
-                languageCode = String.format("%s-%s", language, country);
+                List<MovieVideo> results = response.body().getResults();
+                callback.onRequestMoviesVideosSuccess(results);
             }
 
-            build.appendQueryParameter("language", languageCode);
-        }
-
-        if (page != null) {
-            build.appendQueryParameter("page", String.valueOf(page));
-        }
-
-        if (action != null) {
-            build.appendEncodedPath(action);
-        }
-
-        URL url = null;
-        try {
-            return new URL(build.build().toString());
-
-        } catch (MalformedURLException e) {
-            Log.d(TAG, "Erro ao montar URL");
-        }
-
-        Log.d(TAG, url.toString());
-
-        return url;
+            @Override
+            public void onFailure(Call<VideosCallback> call, Throwable t) {
+                callback.onRequestMoviesFailure(null);
+            }
+        });
     }
+
+
+    /**
+     * @return
+     */
+    private String getLanguage() {
+        String languageCode = THE_MOVIE_DB_LANGUAGE;
+
+        String language = Locale.getDefault().getLanguage();
+        String country = Locale.getDefault().getCountry();
+
+        if (language != null && country != null) {
+            languageCode = String.format("%s-%s", language, country);
+        }
+        return languageCode;
+    }
+
+
 }

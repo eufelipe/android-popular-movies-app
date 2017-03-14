@@ -19,5 +19,6 @@
     <string name="runtime">Runtime:</string>
     <string name="trailers">Trailers:</string>
     <string name="reviews">Reviews:</string>
+    <string name="min">min</string>
 
 </resources>

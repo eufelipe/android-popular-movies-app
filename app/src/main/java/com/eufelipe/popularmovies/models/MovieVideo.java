@@ -4,6 +4,9 @@ package com.eufelipe.popularmovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,9 +18,17 @@ public class MovieVideo implements Parcelable {
 
     private final String BASE_URL_IMAGE = "http://i3.ytimg.com/vi/%s/hqdefault.jpg";
 
+
+    @SerializedName("id")
     private String id;
+
+    @SerializedName("key")
     private String key;
+
+    @SerializedName("name")
     private String name;
+
+    @Expose
     private int movieId;
 
     private MovieVideo() {
@@ -97,57 +108,5 @@ public class MovieVideo implements Parcelable {
             return null;
         }
         return String.format(BASE_URL_IMAGE, getKey());
-    }
-
-
-    public static List<MovieVideo> convertStringJsonForMovieVideo(String jsonString) {
-        JSONObject json = null;
-        List<MovieVideo> movieVideos = new ArrayList<>();
-
-        try {
-            json = new JSONObject(jsonString);
-            JSONArray results = json.getJSONArray("results");
-
-            if (results != null) {
-                for (int i = 0; i < results.length(); i++) {
-                    JSONObject jsonObject = results.getJSONObject(i);
-                    MovieVideo movieVideo = parse(jsonObject);
-                    if (movieVideo != null) {
-                        movieVideos.add(movieVideo);
-                    }
-                }
-            }
-
-            return movieVideos;
-
-        } catch (JSONException e) {
-            return null;
-        }
-
-    }
-
-
-    private static MovieVideo parse(JSONObject jsonObject) {
-
-        MovieVideo movieVideo = new MovieVideo();
-        try {
-
-            if (jsonObject.has("id")) {
-                movieVideo.setId(jsonObject.getString("id"));
-            }
-
-            if (jsonObject.has("key")) {
-                movieVideo.setKey(jsonObject.getString("key"));
-            }
-
-            if (jsonObject.has("name")) {
-                movieVideo.setName(jsonObject.getString("name"));
-            }
-
-        } catch (JSONException e) {
-            return null;
-        }
-
-        return movieVideo;
     }
 }
