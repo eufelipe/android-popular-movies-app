@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.eufelipe.popularmovies.application.App;
+import com.eufelipe.popularmovies.application.Constants;
 import com.eufelipe.popularmovies.application.ListMovieCategory;
 import com.eufelipe.popularmovies.callbacks.AsyncTaskCallback;
 import com.eufelipe.popularmovies.callbacks.TheMovieDbCallback;
@@ -28,7 +29,6 @@ public class TheMovieDbService implements AsyncTaskCallback {
 
     private final String TAG = TheMovieDbService.class.getSimpleName();
 
-    private final String THE_MOVIE_DB_API_URL = "Http://api.themoviedb.org/3/movie/";
     private final String THE_MOVIE_DB_ACTION_POPULAR = "popular";
     private final String THE_MOVIE_DB_ACTION_TOP_RATED = "top_rated";
     private final String THE_MOVIE_DB_ACTION_MOVIE = "movie";
@@ -36,11 +36,11 @@ public class TheMovieDbService implements AsyncTaskCallback {
     private final String THE_MOVIE_DB_ACTION_REVIEWS = "reviews";
     private final String THE_MOVIE_DB_LANGUAGE = "pt-BR";
 
-    public TheMovieDbCallback callback;
+    private final TheMovieDbCallback callback;
 
 
-    public Integer page = 1;
-    public Boolean isRequest = false;
+    private Integer page = 1;
+    private Boolean isRequest = false;
 
 
     /**
@@ -72,6 +72,7 @@ public class TheMovieDbService implements AsyncTaskCallback {
         if (listMovieCategory == ListMovieCategory.TOP_RATED) {
             action = THE_MOVIE_DB_ACTION_TOP_RATED;
         }
+
         startTask(action, getUrl(action, this.page), false);
     }
 
@@ -208,7 +209,7 @@ public class TheMovieDbService implements AsyncTaskCallback {
             appendlanguage = true;
         }
 
-        Uri.Builder build = Uri.parse(THE_MOVIE_DB_API_URL).buildUpon();
+        Uri.Builder build = Uri.parse(Constants.API_URL).buildUpon();
         build.appendQueryParameter("api_key", App.getTheMovieDbKey());
 
         if (appendlanguage) {

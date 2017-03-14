@@ -17,11 +17,11 @@ import java.util.Map;
 
 public class Movie implements Parcelable {
 
-    final static String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/";
-    final static String SIZE_IMAGE = "w185";
-    final static String SIZE_IMAGE_BACKDROP = "w600";
+    private final static String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/";
+    private final static String SIZE_IMAGE = "w185";
+    private final static String SIZE_IMAGE_BACKDROP = "w600";
 
-    final static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private final static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private int id;
     private boolean isAdult;
@@ -41,14 +41,14 @@ public class Movie implements Parcelable {
     private int runtime;
 
 
-    public Movie() {
+    private Movie() {
     }
 
     public Integer getId() {
         return id;
     }
 
-    public Movie setId(Integer id) {
+    private Movie setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -57,7 +57,7 @@ public class Movie implements Parcelable {
         return isAdult;
     }
 
-    public Movie setAdult(Boolean adult) {
+    private Movie setAdult(Boolean adult) {
         isAdult = adult;
         return this;
     }
@@ -69,16 +69,16 @@ public class Movie implements Parcelable {
         return overview;
     }
 
-    public Movie setOverview(String overview) {
+    private Movie setOverview(String overview) {
         this.overview = overview;
         return this;
     }
 
-    public Date getReleaseDate() {
+    private Date getReleaseDate() {
         return releaseDate;
     }
 
-    public Movie setReleaseDate(Date releaseDate) {
+    private Movie setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
         return this;
     }
@@ -87,7 +87,7 @@ public class Movie implements Parcelable {
         return originalTitle;
     }
 
-    public Movie setOriginalTitle(String originalTitle) {
+    private Movie setOriginalTitle(String originalTitle) {
         this.originalTitle = originalTitle;
         return this;
     }
@@ -96,7 +96,7 @@ public class Movie implements Parcelable {
         return originalLanguage;
     }
 
-    public Movie setOriginalLanguage(String originalLanguage) {
+    private Movie setOriginalLanguage(String originalLanguage) {
         this.originalLanguage = originalLanguage;
         return this;
     }
@@ -108,25 +108,25 @@ public class Movie implements Parcelable {
         return title;
     }
 
-    public Movie setTitle(String title) {
+    private Movie setTitle(String title) {
         this.title = title;
         return this;
     }
 
-    public String getPoster() {
+    private String getPoster() {
         return poster;
     }
 
-    public Movie setPoster(String poster) {
+    private Movie setPoster(String poster) {
         this.poster = poster;
         return this;
     }
 
-    public String getBackdrop() {
+    private String getBackdrop() {
         return backdrop;
     }
 
-    public Movie setBackdrop(String backdrop) {
+    private Movie setBackdrop(String backdrop) {
         this.backdrop = backdrop;
         return this;
     }
@@ -135,7 +135,7 @@ public class Movie implements Parcelable {
         return popularity;
     }
 
-    public Movie setPopularity(Double popularity) {
+    private Movie setPopularity(Double popularity) {
         this.popularity = popularity;
         return this;
     }
@@ -144,7 +144,7 @@ public class Movie implements Parcelable {
         return voteCount;
     }
 
-    public Movie setVoteCount(Integer voteCount) {
+    private Movie setVoteCount(Integer voteCount) {
         this.voteCount = voteCount;
         return this;
     }
@@ -153,7 +153,7 @@ public class Movie implements Parcelable {
         return voteAverage;
     }
 
-    public Movie setVoteAverage(Integer voteAverage) {
+    private Movie setVoteAverage(Integer voteAverage) {
         this.voteAverage = voteAverage;
         return this;
     }
@@ -162,7 +162,7 @@ public class Movie implements Parcelable {
         return isVideo;
     }
 
-    public Movie setIsVideo(Boolean video) {
+    private Movie setIsVideo(Boolean video) {
         isVideo = video;
         return this;
     }
@@ -171,7 +171,7 @@ public class Movie implements Parcelable {
         return tagline;
     }
 
-    public Movie setTagline(String tagline) {
+    private Movie setTagline(String tagline) {
         this.tagline = tagline;
         return this;
     }
@@ -180,7 +180,7 @@ public class Movie implements Parcelable {
         return runtime;
     }
 
-    public Movie setRuntime(int runtime) {
+    private Movie setRuntime(int runtime) {
         this.runtime = runtime;
         return this;
     }
@@ -238,7 +238,7 @@ public class Movie implements Parcelable {
      * @return
      * @description : Método para realizar o parse de JSONObject para Movie
      */
-    public static Movie parse(JSONObject jsonObject) {
+    private static Movie parse(JSONObject jsonObject) {
 
         Movie movie = new Movie();
         try {
@@ -329,8 +329,7 @@ public class Movie implements Parcelable {
             return null;
         }
 
-        String url = String.format("%s%s%s", BASE_URL_IMAGE, SIZE_IMAGE, getPoster());
-        return url;
+        return String.format("%s%s%s", BASE_URL_IMAGE, SIZE_IMAGE, getPoster());
     }
 
     /**
@@ -343,8 +342,7 @@ public class Movie implements Parcelable {
             return null;
         }
 
-        String url = String.format("%s%s%s", BASE_URL_IMAGE, SIZE_IMAGE_BACKDROP, getBackdrop());
-        return url;
+        return String.format("%s%s%s", BASE_URL_IMAGE, SIZE_IMAGE_BACKDROP, getBackdrop());
     }
 
 
@@ -353,7 +351,7 @@ public class Movie implements Parcelable {
      */
 
 
-    protected Movie(Parcel in) {
+    private Movie(Parcel in) {
         id = in.readInt();
         isAdult = in.readByte() != 0;
         overview = in.readString();

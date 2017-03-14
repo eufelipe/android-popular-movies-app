@@ -11,29 +11,31 @@ import android.widget.Toast;
 import com.eufelipe.popularmovies.R;
 import com.eufelipe.popularmovies.activities.MovieActivity;
 import com.eufelipe.popularmovies.application.Constants;
+import com.eufelipe.popularmovies.bases.BaseViewHolder;
 import com.eufelipe.popularmovies.models.Movie;
 import com.squareup.picasso.Picasso;
 
-public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-    public ImageView mPosterImageView;
-    Context mContext;
-    Movie mMovie;
+public class MovieViewHolder extends BaseViewHolder implements View.OnClickListener {
+
+    @BindView(R.id.poster)
+    ImageView mPosterImageView;
+
+    private final Context mContext;
+    private Movie mMovie;
 
     public MovieViewHolder(View itemView) {
         super(itemView);
+        ButterKnife.bind(this, itemView);
         mContext = itemView.getContext();
         itemView.setOnClickListener(this);
-        mPosterImageView = (ImageView) itemView.findViewById(R.id.poster);
     }
 
     public void bind(Movie movie) {
         mMovie = movie;
-        Picasso.with(mContext)
-                .load(movie.getPosterImage())
-                .error(R.mipmap.ic_movie_thumb)
-                .placeholder(R.mipmap.ic_movie_thumb)
-                .into(mPosterImageView);
+        setImage(mContext, movie.getPosterImage(), mPosterImageView);
     }
 
 

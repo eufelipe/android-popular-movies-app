@@ -30,48 +30,78 @@ import com.squareup.picasso.Target;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 
 public class MovieActivity extends BaseActivity {
 
-    Movie mMovie;
+    private Movie mMovie;
 
-    TheMovieDbService theMovieDbService = null;
+    private TheMovieDbService theMovieDbService = null;
 
-    CollapsingToolbarLayout mCollapsingToolbar;
-    ImageView mBackdropImageView;
-    ImageView mPosterImageView;
+    @BindView(R.id.collapsing)
+     CollapsingToolbarLayout mCollapsingToolbar;
 
-    FloatingActionButton mFbFavorite;
-    boolean isFavorite = false;
+    @BindView(R.id.iv_backdrop)
+     ImageView mBackdropImageView;
+
+    @BindView(R.id.iv_poster)
+     ImageView mPosterImageView;
+
+    @BindView(R.id.fb_favorite)
+     FloatingActionButton mFbFavorite;
+
+    private boolean isFavorite = false;
 
 
     /**
      * Infos
      */
-    TextView mOverviewTextView;
-    TextView mReleaseDateTextView;
-    TextView mVoteAverageTextView;
-    TextView mRuntimeTextView;
-    LinearLayout mInfoView;
-    ProgressBar mLoaderInfo;
+    @BindView(R.id.tv_overview)
+     TextView mOverviewTextView;
+
+    @BindView(R.id.tv_release_date)
+     TextView mReleaseDateTextView;
+
+    @BindView(R.id.tv_vote_average)
+     TextView mVoteAverageTextView;
+
+    @BindView(R.id.tv_runtime)
+     TextView mRuntimeTextView;
+
+    @BindView(R.id.ll_info)
+     LinearLayout mInfoView;
+
+    @BindView(R.id.pb_info)
+     ProgressBar mLoaderInfo;
 
 
     /**
      * Reviews
      */
+    @BindView(R.id.ll_reviews)
     LinearLayout mReviewsView;
+
+    @BindView(R.id.rv_reviews)
     RecyclerView mReviewsRecyclerView;
-    MovieReviewAdapter mReviewAdapter;
+
+    private MovieReviewAdapter mReviewAdapter;
 
 
     /**
      * Videos
      */
+    @BindView(R.id.ll_trailers)
     LinearLayout mTrailersView;
-    RecyclerView mTrailersRecyclerView;
-    MovieVideoAdapter mVideoAdapter;
 
-    Context mContext;
+    @BindView(R.id.rv_trailers)
+    RecyclerView mTrailersRecyclerView;
+
+    private MovieVideoAdapter mVideoAdapter;
+
+    private Context mContext;
 
 
     /**
@@ -92,6 +122,7 @@ public class MovieActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie);
+        ButterKnife.bind(this);
 
         mContext = getApplicationContext();
 
@@ -106,39 +137,6 @@ public class MovieActivity extends BaseActivity {
         initializeToolbar(mMovie.getTitle());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        // Butter Knife Faria uma maravilha nesse método (╯°□°）╯︵ ┻━┻
-
-
-        mOverviewTextView = (TextView) findViewById(R.id.tv_overview);
-
-        mFbFavorite = (FloatingActionButton) findViewById(R.id.fb_favorite);
-        mFbFavorite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                isFavorite = !isFavorite;
-                setIconFloatingActionButton(isFavorite);
-            }
-        });
-
-
-        mTrailersRecyclerView = (RecyclerView) findViewById(R.id.rv_trailers);
-        mTrailersView = (LinearLayout) findViewById(R.id.ll_trailers);
-
-        mReviewsRecyclerView = (RecyclerView) findViewById(R.id.rv_reviews);
-        mReviewsView = (LinearLayout) findViewById(R.id.ll_reviews);
-
-        mInfoView = (LinearLayout) findViewById(R.id.ll_info);
-        mLoaderInfo = (ProgressBar) findViewById(R.id.pb_info);
-
-        mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing);
-        mBackdropImageView = (ImageView) findViewById(R.id.iv_backdrop);
-        mPosterImageView = (ImageView) findViewById(R.id.iv_poster);
-
-        mReleaseDateTextView = (TextView) findViewById(R.id.tv_release_date);
-        mVoteAverageTextView = (TextView) findViewById(R.id.tv_vote_average);
-        mRuntimeTextView = (TextView) findViewById(R.id.tv_runtime);
-
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -150,19 +148,9 @@ public class MovieActivity extends BaseActivity {
         });
         thread.start();
 
-        bindViews();
-
-
-    }
-
-    private void bindViews() {
-
         show(mInfoView, false);
-
         updateImageViews();
-
         mCollapsingToolbar.setTitle(mMovie.getTitle());
-
         setTextView(mOverviewTextView, mMovie.getOverview());
 
     }
@@ -202,7 +190,7 @@ public class MovieActivity extends BaseActivity {
         mFbFavorite.setImageDrawable(drawable);
     }
 
-    private Target backdropTarget = new Target() {
+    private final Target backdropTarget = new Target() {
         @Override
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
             mBackdropImageView.setImageBitmap(bitmap);
@@ -284,6 +272,13 @@ public class MovieActivity extends BaseActivity {
     public void onRequestMoviesFailure(String error, String action) {
         show(mLoaderInfo, false);
         showToast("Ocorreu um erro:  " + error + " - na action " + action);
+    }
+
+
+    @OnClick(R.id.fb_favorite)
+    public void setIsFavorite() {
+        isFavorite = !isFavorite;
+        setIconFloatingActionButton(isFavorite);
     }
 
 

@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.eufelipe.popularmovies.R;
+import com.eufelipe.popularmovies.application.ListMovieCategory;
 import com.eufelipe.popularmovies.callbacks.TheMovieDbCallback;
 import com.eufelipe.popularmovies.models.Movie;
 import com.eufelipe.popularmovies.models.MovieReview;
@@ -23,9 +24,10 @@ import java.util.List;
  */
 public abstract class BaseActivity extends AppCompatActivity implements TheMovieDbCallback {
 
+    protected int title = R.string.popular_movies;
 
-    protected Toast mToast;
-    protected Toolbar mToolbar;
+    private Toast mToast;
+    private Toolbar mToolbar;
 
 
     /**
@@ -49,6 +51,21 @@ public abstract class BaseActivity extends AppCompatActivity implements TheMovie
             return;
         }
         view.setVisibility(isShow ? View.VISIBLE : View.GONE);
+    }
+
+
+    protected void setTitleToolbar(ListMovieCategory listMovieCategory) {
+        if (mToolbar == null) {
+            return;
+        }
+
+        int color = ContextCompat.getColor(getApplicationContext(), R.color.colorGrayDark);
+        if (listMovieCategory == ListMovieCategory.TOP_RATED) {
+            color = ContextCompat.getColor(getApplicationContext(), R.color.colorOrange);
+        }
+        mToolbar.setBackgroundColor(color);
+        title = (listMovieCategory == ListMovieCategory.POPULAR ? R.string.popular_movies : R.string.top_rated_movies);
+        mToolbar.setTitle(title);
     }
 
 

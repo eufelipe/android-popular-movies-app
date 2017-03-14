@@ -6,8 +6,7 @@
 
     <ImageView
         android:id="@+id/poster"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        style="@style/match_match"
         android:adjustViewBounds="true"
         android:contentDescription="@string/app_imageview_movie_description"
         android:scaleType="fitXY"

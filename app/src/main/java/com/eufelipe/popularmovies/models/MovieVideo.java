@@ -13,17 +13,17 @@ import java.util.List;
 
 public class MovieVideo implements Parcelable {
 
-    public final String BASE_URL_IMAGE = "http://i3.ytimg.com/vi/%s/hqdefault.jpg";
+    private final String BASE_URL_IMAGE = "http://i3.ytimg.com/vi/%s/hqdefault.jpg";
 
     private String id;
     private String key;
     private String name;
     private int movieId;
 
-    public MovieVideo() {
+    private MovieVideo() {
     }
 
-    protected MovieVideo(Parcel in) {
+    private MovieVideo(Parcel in) {
         id = in.readString();
         key = in.readString();
         name = in.readString();
@@ -46,7 +46,7 @@ public class MovieVideo implements Parcelable {
         return id;
     }
 
-    public MovieVideo setId(String id) {
+    private MovieVideo setId(String id) {
         this.id = id;
         return this;
     }
@@ -55,7 +55,7 @@ public class MovieVideo implements Parcelable {
         return key;
     }
 
-    public MovieVideo setKey(String key) {
+    private MovieVideo setKey(String key) {
         this.key = key;
         return this;
     }
@@ -64,7 +64,7 @@ public class MovieVideo implements Parcelable {
         return name;
     }
 
-    public MovieVideo setName(String name) {
+    private MovieVideo setName(String name) {
         this.name = name;
         return this;
     }
@@ -96,8 +96,7 @@ public class MovieVideo implements Parcelable {
         if (getKey() == null) {
             return null;
         }
-        String url = String.format(BASE_URL_IMAGE, getKey());
-        return url;
+        return String.format(BASE_URL_IMAGE, getKey());
     }
 
 
@@ -128,7 +127,7 @@ public class MovieVideo implements Parcelable {
     }
 
 
-    public static MovieVideo parse(JSONObject jsonObject) {
+    private static MovieVideo parse(JSONObject jsonObject) {
 
         MovieVideo movieVideo = new MovieVideo();
         try {

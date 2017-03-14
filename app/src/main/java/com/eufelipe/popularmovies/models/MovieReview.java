@@ -17,11 +17,11 @@ public class MovieReview implements Parcelable {
     private String content;
     private String url;
 
-    public MovieReview() {
+    private MovieReview() {
 
     }
 
-    protected MovieReview(Parcel in) {
+    private MovieReview(Parcel in) {
         id = in.readString();
         author = in.readString();
         content = in.readString();
@@ -44,7 +44,7 @@ public class MovieReview implements Parcelable {
         return id;
     }
 
-    public MovieReview setId(String id) {
+    private MovieReview setId(String id) {
         this.id = id;
         return this;
     }
@@ -53,7 +53,7 @@ public class MovieReview implements Parcelable {
         return author;
     }
 
-    public MovieReview setAuthor(String author) {
+    private MovieReview setAuthor(String author) {
         this.author = author;
         return this;
     }
@@ -62,7 +62,7 @@ public class MovieReview implements Parcelable {
         return content;
     }
 
-    public MovieReview setContent(String content) {
+    private MovieReview setContent(String content) {
         this.content = content;
         return this;
     }
@@ -71,7 +71,7 @@ public class MovieReview implements Parcelable {
         return url;
     }
 
-    public MovieReview setUrl(String url) {
+    private MovieReview setUrl(String url) {
         this.url = url;
         return this;
     }
@@ -114,7 +114,7 @@ public class MovieReview implements Parcelable {
         }
     }
 
-    public static MovieReview parse(JSONObject jsonObject) {
+    private static MovieReview parse(JSONObject jsonObject) {
 
         MovieReview movieReview = new MovieReview();
 

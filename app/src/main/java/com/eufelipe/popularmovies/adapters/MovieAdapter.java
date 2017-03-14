@@ -26,11 +26,11 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private List<Movie> movieList = new ArrayList<>();
 
 
-    public final int VIEW_TYPE_ITEM = 0;
-    public final int VIEW_TYPE_LOADER = 1;
+    private final int VIEW_TYPE_ITEM = 0;
+    private final int VIEW_TYPE_LOADER = 1;
     private boolean isShowLoader = true;
 
-    private Context mContext;
+    private final Context mContext;
 
 
     public MovieAdapter(Context context, List<Movie> movieList) {
@@ -115,7 +115,10 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
      * @description : Método para pegar todos os registros atuais do adapter
      */
     public List<Movie> getItems() {
-        return movieList;
+        if (movieList != null) {
+            return movieList;
+        }
+        return new ArrayList<>();
     }
 
 

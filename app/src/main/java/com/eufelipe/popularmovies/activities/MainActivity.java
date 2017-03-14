@@ -4,12 +4,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -25,6 +24,10 @@ import com.eufelipe.popularmovies.services.TheMovieDbService;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 
 /**
  * @description : Activity principal com o requisito de exibir uma lista de filmes populares
@@ -33,51 +36,57 @@ import java.util.List;
 
 public class MainActivity extends BaseActivity {
 
-    final static String TAG = "MainActivity";
+    final String TAG = getClass().getSimpleName();
 
-    Context mContext;
+    private Context mContext;
+    private TheMovieDbService theMovieDbService = null;
 
-    TheMovieDbService theMovieDbService = null;
-
+    @BindView(R.id.recyclerview)
     RecyclerView mRecyclerView;
-    MovieAdapter mMovieAdapter;
-    GridLayoutManager mGridLayoutManager;
 
+    private MovieAdapter mMovieAdapter;
+    private GridLayoutManager mGridLayoutManager;
+
+    @BindView(R.id.rl_loader)
     RelativeLayout mLoaderView;
+
+    @BindView(R.id.rl_not_internet)
     RelativeLayout mErrorView;
 
+    @BindView(R.id.main_content)
     CoordinatorLayout mMainContentView;
 
+    @BindView(R.id.error_message)
     TextView mErrorMessageTextView;
+
+    @BindView(R.id.error_button)
     Button mErrorButton;
 
     // página atual
-    Integer page = 1;
+    private Integer page = 1;
 
-    ListMovieCategory listMovieCategory = ListMovieCategory.POPULAR;
+    private ListMovieCategory listMovieCategory = ListMovieCategory.POPULAR;
 
     /**
      * Loader More
      */
-    int pastVisiblesItems;
-    int visibleItemCount;
-    int totalItemCount;
-    int firstVisibleItemPosition;
+    private int pastVisiblesItems;
+    private int visibleItemCount;
+    private int totalItemCount;
+    private int firstVisibleItemPosition;
 
-    final int LOADER_COLUMN = 1;
-    final int MOVIE_COLUMN = 2;
+    private final int LOADER_COLUMN = 1;
+    private final int MOVIE_COLUMN = 2;
 
-    boolean isFirstRequest = true;
+    private boolean isFirstRequest = true;
 
-    int title = R.string.popular_movies;
 
     /**
      * Restore
      */
 
-    Parcelable mMovieListParceble;
-
-    private boolean isEnableLoadMore = true;
+    private Parcelable mMovieListParceble;
+    private final boolean isEnableLoadMore = true;
 
 
     /**
@@ -89,23 +98,10 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         mContext = getApplicationContext();
 
         initializeToolbar(R.string.app_name);
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        mErrorView = (RelativeLayout) findViewById(R.id.rl_not_internet);
-        mLoaderView = (RelativeLayout) findViewById(R.id.rl_loader);
-        mErrorMessageTextView = (TextView) findViewById(R.id.error_message);
-        mErrorButton = (Button) findViewById(R.id.error_button);
-        mMainContentView = (CoordinatorLayout) findViewById(R.id.main_content);
-
-        mErrorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getTheMovieDbService().movies(page, listMovieCategory);
-            }
-        });
 
         if (savedInstanceState != null) {
             int titleSaved = savedInstanceState.getInt(Constants.TITLE_STATE_KEY, -1);
@@ -122,13 +118,29 @@ public class MainActivity extends BaseActivity {
             }
         }
 
-        int columns = getResources().getInteger(R.integer.grid_columns);
-        mGridLayoutManager = new GridLayoutManager(this, columns);
-        mLoaderView.setVisibility(View.VISIBLE);
+        mGridLayoutManager = new GridLayoutManager(this, numberOfColums());
+        show(mLoaderView, true);
 
         requestMoviesOnApi(page, listMovieCategory);
-        settitleToolbar(listMovieCategory);
+        setTitleToolbar(listMovieCategory);
 
+    }
+
+    /**
+     * Sugestão 3
+     *
+     * @return
+     */
+    private int numberOfColums() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        int widthDivider = 500;
+        int width = displayMetrics.widthPixels;
+        int nColumn = width / widthDivider;
+        if (nColumn < 2) return 2;
+
+        return nColumn;
     }
 
 
@@ -226,9 +238,9 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onRequestMovieSuccess(List<Movie> movieList, Integer page) {
 
-        mLoaderView.setVisibility(View.GONE);
-        mErrorView.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.VISIBLE);
+        show(mLoaderView, false);
+        show(mErrorView, false);
+        show(mRecyclerView, true);
 
         isFirstRequest = false;
 
@@ -257,9 +269,9 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onRequestMoviesFailure(String error, String action) {
 
-        mLoaderView.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.GONE);
-        mErrorView.setVisibility(View.VISIBLE);
+        show(mLoaderView, false);
+        show(mRecyclerView, false);
+        show(mErrorView, true);
 
         if (mMovieAdapter != null) {
             mMovieAdapter.setIsShowLoader(false);
@@ -270,7 +282,7 @@ public class MainActivity extends BaseActivity {
             errorMessage = error;
         }
 
-        mErrorMessageTextView.setText(errorMessage);
+        setTextView(mErrorMessageTextView, errorMessage);
     }
 
 
@@ -300,18 +312,29 @@ public class MainActivity extends BaseActivity {
             return true;
         }
 
-        mLoaderView.setVisibility(View.VISIBLE);
-        mErrorView.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.GONE);
+        show(mLoaderView, true);
+        show(mErrorView, false);
+        show(mRecyclerView, false);
 
-        settitleToolbar(order);
+        setTitleToolbar(order);
 
         listMovieCategory = order;
         page = 1;
-        mMovieAdapter.getItems().clear();
-        mMovieAdapter.notifyDataSetChanged();
+        if (mMovieAdapter != null) {
+            mMovieAdapter.getItems().clear();
+            mMovieAdapter.notifyDataSetChanged();
+        }
         requestMoviesOnApi(page, listMovieCategory);
         return true;
+    }
+
+    /**
+     * Try Again Request
+     */
+
+    @OnClick(R.id.error_button)
+    public void tryAgain() {
+        requestMoviesOnApi(page, listMovieCategory);
     }
 
 
@@ -361,18 +384,5 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    public void settitleToolbar(ListMovieCategory listMovieCategory) {
-        if (mToolbar == null) {
-            return;
-        }
-
-        int color = ContextCompat.getColor(mContext, R.color.colorGrayDark);
-        if (listMovieCategory == ListMovieCategory.TOP_RATED) {
-            color = ContextCompat.getColor(mContext, R.color.colorOrange);
-        }
-        mToolbar.setBackgroundColor(color);
-        title = (listMovieCategory == ListMovieCategory.POPULAR ? R.string.popular_movies : R.string.top_rated_movies);
-        mToolbar.setTitle(title);
-    }
 
 }

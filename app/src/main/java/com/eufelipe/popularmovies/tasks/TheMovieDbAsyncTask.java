@@ -17,8 +17,8 @@ import java.net.URL;
 
 public class TheMovieDbAsyncTask extends AsyncTask<URL, Void, String> {
 
-    AsyncTaskCallback callback;
-    String action;
+    private final AsyncTaskCallback callback;
+    private final String action;
 
     /**
      * @param callback

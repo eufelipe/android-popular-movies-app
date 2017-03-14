@@ -7,14 +7,17 @@ import android.widget.ProgressBar;
 
 import com.eufelipe.popularmovies.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class LoaderViewHolder extends RecyclerView.ViewHolder {
 
-    public ProgressBar mLoader;
+    @BindView(R.id.loader)
+    ProgressBar mLoader;
 
     public LoaderViewHolder(View itemView) {
         super(itemView);
-        mLoader = (ProgressBar) itemView.findViewById(R.id.loader);
+        ButterKnife.bind(this, itemView);
         mLoader.setIndeterminate(true);
     }
-
 }
