@@ -3,29 +3,30 @@ package com.eufelipe.popularmovies.services;
 
 import com.eufelipe.popularmovies.R;
 import com.eufelipe.popularmovies.application.App;
-import com.eufelipe.popularmovies.application.ListMovieCategory;
+import com.eufelipe.popularmovies.application.ListMovie;
 import com.eufelipe.popularmovies.application.TheMovieDb;
 import com.eufelipe.popularmovies.bases.BaseService;
-import com.eufelipe.popularmovies.models.Movie;
-import com.eufelipe.popularmovies.models.MovieReview;
-import com.eufelipe.popularmovies.models.MovieVideo;
 import com.eufelipe.popularmovies.callbacks.MoviesCallback;
 import com.eufelipe.popularmovies.callbacks.ReviewsCallback;
 import com.eufelipe.popularmovies.callbacks.VideosCallback;
+import com.eufelipe.popularmovies.models.Movie;
+import com.eufelipe.popularmovies.models.MovieReview;
+import com.eufelipe.popularmovies.models.MovieVideo;
 
 import java.util.List;
 import java.util.Locale;
 
+import io.realm.RealmQuery;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * @description : class responsável pelas consultas na API The MoviesCallback DB
+ * @description : class responsável pelas consultas na API The MoviesCallback DB e no banco Local
  * @author: Felipe Rosas <contato@eufelipe.com>
  */
 
-public class TheMovieDbService extends BaseService {
+public class TheMovieDbService extends BaseService<Movie> {
 
     private final String TAG = TheMovieDbService.class.getSimpleName();
 
@@ -85,7 +86,7 @@ public class TheMovieDbService extends BaseService {
      * @param listMovieCategory
      * @description : Método responsável por iniciar a requisição assíncrona a API do The MoviesCallback Db
      */
-    public void movies(Integer page, ListMovieCategory listMovieCategory) {
+    public void movies(Integer page, ListMovie.Category listMovieCategory) {
         if (getRequest()) {
             return;
         }
@@ -94,13 +95,18 @@ public class TheMovieDbService extends BaseService {
 
         String language = getLanguage();
 
-        if (listMovieCategory == ListMovieCategory.TOP_RATED) {
+        if (listMovieCategory == ListMovie.Category.TOP_RATED) {
             Call<MoviesCallback> call = api(language).topRated(this.page);
             enqueue(call);
 
-        } else if (listMovieCategory == ListMovieCategory.POPULAR) {
+        } else if (listMovieCategory == ListMovie.Category.POPULAR) {
             Call<MoviesCallback> call = api(getLanguage()).popular(this.page);
             enqueue(call);
+
+        } else if (listMovieCategory == ListMovie.Category.FAVORITE) {
+            setRequest(false);
+            List<Movie> favorites = favorites();
+            callback.onRequestMovieSuccess(favorites, getPage());
         }
     }
 
@@ -212,6 +218,32 @@ public class TheMovieDbService extends BaseService {
                 callback.onRequestMoviesFailure(null);
             }
         });
+    }
+
+
+    /**
+     * @param movie
+     * @description : Método para favoritar/desfavoritar um movie
+     */
+    public void toggleFavoriteMovie(Movie movie) {
+        realm().beginTransaction();
+        int id = movie.getId();
+        Movie record = firstOrNew(movie, id);
+        record.setIsFavorite(!record.getIsFavorite());
+        realm().commitTransaction();
+    }
+
+    /**
+     * Método para retornar os filmes salvos localmente como favoritos
+     *
+     * @return
+     */
+    public List<Movie> favorites() {
+        RealmQuery<Movie> query = realm()
+                .where(Movie.class)
+                .equalTo("isFavorite", true);
+
+        return query.findAll();
     }
 
 

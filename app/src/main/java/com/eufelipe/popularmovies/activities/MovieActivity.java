@@ -125,6 +125,12 @@ public class MovieActivity extends BaseActivity {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null && bundle.getParcelable(Constants.MOVIE_DATA_KEY) != null) {
             mMovie = bundle.getParcelable(Constants.MOVIE_DATA_KEY);
+
+            Movie foundMovieLocal = getTheMovieDbService().findById(mMovie.getId());
+            if (foundMovieLocal != null) {
+                mMovie.setIsFavorite(foundMovieLocal.getIsFavorite());
+            }
+
         } else {
             showToast(R.string.app_error_movie_invalid);
             finish();
@@ -148,6 +154,9 @@ public class MovieActivity extends BaseActivity {
         updateImageViews();
         mCollapsingToolbar.setTitle(mMovie.getTitle());
         setTextView(mOverviewTextView, mMovie.getOverview());
+
+        isFavorite = mMovie.getIsFavorite();
+        setIconFloatingActionButton(isFavorite);
 
     }
 
@@ -277,6 +286,7 @@ public class MovieActivity extends BaseActivity {
     public void setIsFavorite() {
         isFavorite = !isFavorite;
         setIconFloatingActionButton(isFavorite);
+        getTheMovieDbService().toggleFavoriteMovie(mMovie);
     }
 
 

@@ -8,19 +8,13 @@ import com.eufelipe.popularmovies.application.App;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
-public class Movie implements Parcelable {
+import io.realm.RealmObject;
+
+public class Movie extends RealmObject implements Parcelable {
 
     private final static String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/";
     private final static String SIZE_IMAGE = "w185";
@@ -75,8 +69,10 @@ public class Movie implements Parcelable {
     @Expose
     private int runtime;
 
+    private boolean isFavorite;
 
-    private Movie() {
+
+    public Movie() {
     }
 
     public Integer getId() {
@@ -244,6 +240,15 @@ public class Movie implements Parcelable {
 
     }
 
+    public boolean getIsFavorite() {
+        return isFavorite;
+    }
+
+    public Movie setIsFavorite(boolean isFavorite) {
+        this.isFavorite = isFavorite;
+        return this;
+    }
+
     /**
      * Método para montar a imagem
      *
@@ -291,6 +296,7 @@ public class Movie implements Parcelable {
         isVideo = in.readByte() != 0;
         tagline = in.readString();
         runtime = in.readInt();
+        isFavorite = in.readByte() != 0;
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -327,5 +333,6 @@ public class Movie implements Parcelable {
         parcel.writeByte((byte) (isVideo ? 1 : 0));
         parcel.writeString(tagline);
         parcel.writeInt(runtime);
+        parcel.writeByte((byte) (isFavorite ? 1 : 0));
     }
 }

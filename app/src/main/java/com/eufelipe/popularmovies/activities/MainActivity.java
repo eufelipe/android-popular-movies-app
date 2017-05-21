@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.eufelipe.popularmovies.R;
 import com.eufelipe.popularmovies.adapters.MovieAdapter;
 import com.eufelipe.popularmovies.application.Constants;
-import com.eufelipe.popularmovies.application.ListMovieCategory;
+import com.eufelipe.popularmovies.application.ListMovie;
 import com.eufelipe.popularmovies.bases.BaseActivity;
 import com.eufelipe.popularmovies.helpers.NetworkHelper;
 import com.eufelipe.popularmovies.models.Movie;
@@ -65,7 +65,7 @@ public class MainActivity extends BaseActivity {
     // página atual
     private Integer page = 1;
 
-    private ListMovieCategory listMovieCategory = ListMovieCategory.POPULAR;
+    private ListMovie.Category listMovieCategory = ListMovie.Category.POPULAR;
 
     /**
      * Loader More
@@ -110,9 +110,11 @@ public class MainActivity extends BaseActivity {
 
             int order = savedInstanceState.getInt(Constants.MOVIE_ORDER_STATE_KEY, -1);
             if (order > -1) {
-                listMovieCategory = ListMovieCategory.POPULAR;
+                listMovieCategory = ListMovie.Category.POPULAR;
                 if (order == 2) {
-                    listMovieCategory = ListMovieCategory.TOP_RATED;
+                    listMovieCategory = ListMovie.Category.TOP_RATED;
+                } else if (order == 3) {
+                    listMovieCategory = ListMovie.Category.FAVORITE;
                 }
             }
         }
@@ -160,7 +162,7 @@ public class MainActivity extends BaseActivity {
      * @param page
      * @param listMovieCategory
      */
-    private void requestMoviesOnApi(int page, ListMovieCategory listMovieCategory) {
+    private void requestMoviesOnApi(int page, ListMovie.Category listMovieCategory) {
         getTheMovieDbService().movies(page, listMovieCategory);
     }
 
@@ -187,6 +189,12 @@ public class MainActivity extends BaseActivity {
 
         if (!isEnableLoadMore) {
             mMovieAdapter.setIsShowLoader(false);
+        }
+
+        if (listMovieCategory == ListMovie.Category.FAVORITE) {
+            page = 1;
+            mMovieAdapter.setIsShowLoader(false);
+            return;
         }
 
         // Listener for Loader More
@@ -264,7 +272,6 @@ public class MainActivity extends BaseActivity {
             // Para de piscar o fadeIn
             mMovieAdapter.setIsShowAnimation(false);
         }
-
     }
 
     @Override
@@ -299,15 +306,18 @@ public class MainActivity extends BaseActivity {
 
         switch (itemId) {
             case R.id.action_popular_movies:
-                return actionMenu(ListMovieCategory.POPULAR);
+                return actionMenu(ListMovie.Category.POPULAR);
 
             case R.id.action_top_rated_movies:
-                return actionMenu(ListMovieCategory.TOP_RATED);
+                return actionMenu(ListMovie.Category.TOP_RATED);
+
+            case R.id.action_favorite_movies:
+                return actionMenu(ListMovie.Category.FAVORITE);
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean actionMenu(ListMovieCategory order) {
+    private boolean actionMenu(ListMovie.Category order) {
         if (this.listMovieCategory == order) {
             showToast(getString(R.string.menu_already_ordered));
             return true;
@@ -322,7 +332,7 @@ public class MainActivity extends BaseActivity {
         listMovieCategory = order;
         page = 1;
         if (mMovieAdapter != null) {
-            mMovieAdapter.getItems().clear();
+            mMovieAdapter.clear();
             mMovieAdapter.notifyDataSetChanged();
         }
         requestMoviesOnApi(page, listMovieCategory);
@@ -349,8 +359,7 @@ public class MainActivity extends BaseActivity {
         mMovieListParceble = mGridLayoutManager.onSaveInstanceState();
         savedInstanceState.putParcelable(Constants.MOVIE_LIST_STATE_KEY, mMovieListParceble);
         savedInstanceState.putInt(Constants.TITLE_STATE_KEY, title);
-        savedInstanceState.putInt(Constants.MOVIE_ORDER_STATE_KEY, listMovieCategory == ListMovieCategory.POPULAR ? 1 : 2);
-
+        savedInstanceState.putInt(Constants.MOVIE_ORDER_STATE_KEY, ListMovie.getListMovieCategoryId(listMovieCategory));
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -366,10 +375,7 @@ public class MainActivity extends BaseActivity {
             mMovieListParceble = savedInstanceState.getParcelable(Constants.MOVIE_LIST_STATE_KEY);
             title = savedInstanceState.getInt(Constants.TITLE_STATE_KEY);
             int order = savedInstanceState.getInt(Constants.MOVIE_ORDER_STATE_KEY);
-            listMovieCategory = ListMovieCategory.POPULAR;
-            if (order == 2) {
-                listMovieCategory = ListMovieCategory.TOP_RATED;
-            }
+            this.listMovieCategory = ListMovie.getListMovieCategory(order);
         }
     }
 
@@ -380,9 +386,12 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+//        getTheMovieDbService().deleteAll();
+
         if (mMovieListParceble != null && mGridLayoutManager != null) {
             mGridLayoutManager.onRestoreInstanceState(mMovieListParceble);
         }
     }
+
 
 }

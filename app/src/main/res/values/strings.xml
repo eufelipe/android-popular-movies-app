@@ -9,6 +9,7 @@
 
     <string name="popular_movies">Popular Movies</string>
     <string name="top_rated_movies">Top rated Movies</string>
+    <string name="favorite_movies">Favorite Movies</string>
 
     <string name="menu_already_ordered">Already ordered this way =)</string>
 

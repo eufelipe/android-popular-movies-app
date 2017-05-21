@@ -5,6 +5,8 @@ import android.content.Context;
 
 import com.eufelipe.popularmovies.R;
 
+import io.realm.Realm;
+
 /**
  * @description : Class App responsável pela aplicação
  * @author: Felipe Rosas <contato@eufelipe.com>
@@ -18,6 +20,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         mGlobalContext = getApplicationContext();
+        Realm.init(mGlobalContext);
     }
 
     /**

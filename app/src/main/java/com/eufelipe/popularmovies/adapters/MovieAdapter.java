@@ -131,4 +131,8 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         super.onViewDetachedFromWindow(holder);
         holder.itemView.clearAnimation();
     }
+
+    public void clear() {
+        movieList = new ArrayList<>();
+    }
 }

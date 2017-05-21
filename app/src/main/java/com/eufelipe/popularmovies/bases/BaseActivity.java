@@ -9,7 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.eufelipe.popularmovies.R;
-import com.eufelipe.popularmovies.application.ListMovieCategory;
+import com.eufelipe.popularmovies.application.ListMovie;
 import com.eufelipe.popularmovies.application.TheMovieDb;
 import com.eufelipe.popularmovies.models.Movie;
 import com.eufelipe.popularmovies.models.MovieReview;
@@ -54,17 +54,26 @@ public abstract class BaseActivity extends AppCompatActivity implements TheMovie
     }
 
 
-    protected void setTitleToolbar(ListMovieCategory listMovieCategory) {
+    protected void setTitleToolbar(ListMovie.Category listMovieCategory) {
         if (mToolbar == null) {
             return;
         }
-
         int color = ContextCompat.getColor(getApplicationContext(), R.color.colorGrayDark);
-        if (listMovieCategory == ListMovieCategory.TOP_RATED) {
-            color = ContextCompat.getColor(getApplicationContext(), R.color.colorOrange);
+        title = R.string.popular_movies;
+
+        switch (listMovieCategory) {
+            case FAVORITE:
+                color = ContextCompat.getColor(getApplicationContext(), R.color.colorOrange);
+                title = R.string.favorite_movies;
+                break;
+
+            case TOP_RATED:
+                color = ContextCompat.getColor(getApplicationContext(), R.color.colorPurple);
+                title = R.string.top_rated_movies;
+                break;
         }
+
         mToolbar.setBackgroundColor(color);
-        title = (listMovieCategory == ListMovieCategory.POPULAR ? R.string.popular_movies : R.string.top_rated_movies);
         mToolbar.setTitle(title);
     }
 
