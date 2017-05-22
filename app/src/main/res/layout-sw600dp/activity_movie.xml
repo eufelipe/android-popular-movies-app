@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/match_match"
+    android:animateLayoutChanges="true"
+    android:fitsSystemWindows="true"
+    tools:context=".activities.MovieActivity">
+
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_256dp"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        tools:visibility="gone">
+
+        <include layout="@layout/include_movie_toolbar" />
+    </android.support.design.widget.AppBarLayout>
+
+
+    <android.support.v4.widget.NestedScrollView
+        style="@style/match_match"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            style="@style/linear_layout_full_vertical"
+            android:paddingBottom="@dimen/dimen_50dp"
+            android:paddingTop="@dimen/dimen_24dp">
+
+            <LinearLayout
+                style="@style/row"
+                android:padding="@dimen/dimen_16dp">
+
+                <LinearLayout style="@style/col30">
+
+                    <ImageView
+                        android:id="@+id/iv_poster"
+                        style="@style/match_wrap"
+                        android:adjustViewBounds="true"
+                        android:src="@mipmap/ic_movie_thumb" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/col70"
+                    android:paddingLeft="@dimen/dimen_16dp">
+
+                    <include layout="@layout/include_movie_overview" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dimen_20dp" />
+
+                    <RelativeLayout style="@style/match_match">
+
+                        <ProgressBar
+                            android:id="@+id/pb_info"
+                            style="@style/match_match"
+                            android:layout_marginTop="@dimen/dimen_30dp" />
+
+                        <LinearLayout
+                            android:id="@+id/ll_info"
+                            style="@style/linear_layout_full_vertical">
+
+                            <LinearLayout style="@style/row">
+
+                                <LinearLayout
+                                    style="@style/col30"
+                                    android:layout_weight="33">
+
+                                    <TextView
+                                        style="@style/match_wrap"
+                                        android:text="@string/release_date"
+                                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                        android:textSize="@dimen/text_size_12sp" />
+
+
+                                    <TextView
+                                        android:id="@+id/tv_release_date"
+                                        style="@style/match_wrap"
+                                        android:inputType="textCapSentences"
+                                        tools:text="Novembro 2016" />
+
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    style="@style/col30"
+                                    android:layout_weight="33">
+
+                                    <TextView
+                                        style="@style/match_wrap"
+                                        android:text="@string/vote_average"
+                                        android:textSize="@dimen/text_size_12sp" />
+
+                                    <TextView
+                                        android:id="@+id/tv_vote_average"
+                                        style="@style/match_wrap"
+                                        android:layout_marginBottom="@dimen/dimen_16dp"
+                                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                        tools:text="10" />
+
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    style="@style/col30"
+                                    android:layout_weight="33">
+
+                                    <TextView
+                                        style="@style/match_wrap"
+                                        android:text="@string/runtime"
+                                        android:textSize="@dimen/text_size_12sp" />
+
+                                    <TextView
+                                        android:id="@+id/tv_runtime"
+                                        style="@style/match_wrap"
+                                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                        tools:text="170 min" />
+
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </RelativeLayout>
+
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <include layout="@layout/include_movie_trailers_reviews" />
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <include layout="@layout/include_movie_button_favorite" />
+
+
+</android.support.design.widget.CoordinatorLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

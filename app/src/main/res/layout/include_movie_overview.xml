@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/match_wrap"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/match_wrap"
+        android:text="@string/overview_title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        tools:text="OverView" />
+
+    <TextView
+        android:id="@+id/tv_overview"
+        style="@style/match_wrap"
+        tools:text="Aqui seque um descrição sobre o filme...." />
+</LinearLayout>

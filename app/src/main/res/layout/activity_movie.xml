@@ -15,33 +15,8 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         tools:visibility="gone">
 
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsing"
-            style="@style/match_match"
-            android:fitsSystemWindows="true"
-            app:contentScrim="@android:color/transparent"
-            app:expandedTitleMarginEnd="@dimen/dimen_64dp"
-            app:expandedTitleMarginStart="@dimen/dimen_48dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
-            <ImageView
-                android:id="@+id/iv_backdrop"
-                style="@style/match_match"
-                android:fitsSystemWindows="true"
-                android:scaleType="centerCrop"
-                app:layout_collapseMode="parallax" />
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
-        </android.support.design.widget.CollapsingToolbarLayout>
-
+        <include layout="@layout/include_movie_toolbar" />
     </android.support.design.widget.AppBarLayout>
-
 
     <android.support.v4.widget.NestedScrollView
         style="@style/match_match"
@@ -87,7 +62,6 @@
                                 android:text="@string/release_date"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
-
                             <TextView
                                 android:id="@+id/tv_release_date"
                                 style="@style/match_wrap"
@@ -107,7 +81,7 @@
                                 android:layout_marginBottom="@dimen/dimen_16dp"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 tools:text="10" />
-                            
+
                             <TextView
                                 style="@style/match_wrap"
                                 android:text="@string/runtime"
@@ -123,113 +97,17 @@
                 </LinearLayout>
             </LinearLayout>
 
-
             <LinearLayout
                 style="@style/linear_layout_full_vertical"
                 android:padding="@dimen/dimen_16dp">
 
-                <TextView
-                    style="@style/match_wrap"
-                    android:text="@string/overview_title"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    tools:text="OverView" />
-
-                <TextView
-                    android:id="@+id/tv_overview"
-                    style="@style/match_wrap"
-                    tools:text="Aqui seque um descrição sobre o filme...." />
-
+                <include layout="@layout/include_movie_overview" />
             </LinearLayout>
 
-
-            <LinearLayout
-                android:id="@+id/ll_trailers"
-                style="@style/linear_layout_full_vertical"
-                android:padding="@dimen/dimen_16dp"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <View
-                    style="@style/divider"
-                    android:layout_marginTop="@dimen/dimen_16dp" />
-
-
-                <TextView
-                    style="@style/match_wrap"
-                    android:layout_marginTop="@dimen/dimen_16dp"
-                    android:text="@string/trailers"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    tools:text="Trailers" />
-
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_trailers"
-                    style="@style/match_wrap"
-                    tools:layout_height="@dimen/dimen_20dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/ll_reviews"
-                style="@style/linear_layout_full_vertical"
-                android:padding="@dimen/dimen_16dp"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <View
-                    style="@style/divider"
-                    android:layout_marginTop="@dimen/dimen_16dp" />
-
-                <TextView
-                    style="@style/match_wrap"
-                    android:layout_marginTop="@dimen/dimen_16dp"
-                    android:text="@string/reviews"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                <TextView
-                    android:id="@+id/reviews_test"
-                    style="@style/match_wrap" />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_reviews"
-                    style="@style/match_wrap"
-                    tools:layout_height="@dimen/dimen_20dp" />
-
-
-            </LinearLayout>
+            <include layout="@layout/include_movie_trailers_reviews" />
 
         </LinearLayout>
-
     </android.support.v4.widget.NestedScrollView>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fb_favorite"
-        style="@style/wrap_wrap"
-        android:layout_gravity="center_vertical|left"
-        android:layout_marginEnd="@dimen/dimen_20dp"
-        android:layout_marginLeft="@dimen/dimen_16dp"
-        android:layout_marginRight="@dimen/dimen_16dp"
-        android:src="@drawable/ic_favorite_off"
-        app:backgroundTint="@color/colorWhite"
-        app:borderWidth="@dimen/dimen_0dp"
-        app:fabSize="mini"
-        app:layout_anchor="@+id/appbar"
-        app:layout_anchorGravity="bottom|right" />
-
+    <include layout="@layout/include_movie_button_favorite" />
 </android.support.design.widget.CoordinatorLayout>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

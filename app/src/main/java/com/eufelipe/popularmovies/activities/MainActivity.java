@@ -109,14 +109,7 @@ public class MainActivity extends BaseActivity {
             }
 
             int order = savedInstanceState.getInt(Constants.MOVIE_ORDER_STATE_KEY, -1);
-            if (order > -1) {
-                listMovieCategory = ListMovie.Category.POPULAR;
-                if (order == 2) {
-                    listMovieCategory = ListMovie.Category.TOP_RATED;
-                } else if (order == 3) {
-                    listMovieCategory = ListMovie.Category.FAVORITE;
-                }
-            }
+            listMovieCategory = ListMovie.getListMovieCategory(order);
         }
 
         mGridLayoutManager = new GridLayoutManager(this, numberOfColums());
@@ -136,7 +129,7 @@ public class MainActivity extends BaseActivity {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
-        int widthDivider = 500;
+        int widthDivider = 400;
         int width = displayMetrics.widthPixels;
         int nColumn = width / widthDivider;
         if (nColumn < 2) return 2;
