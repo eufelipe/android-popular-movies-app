@@ -1,5 +1,6 @@
 package com.eufelipe.popularmovies.activities;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -50,6 +51,9 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.rl_loader)
     RelativeLayout mLoaderView;
 
+    @BindView(R.id.rl_favorite_empty)
+    RelativeLayout mFavoriteEmpty;
+
     @BindView(R.id.rl_not_internet)
     RelativeLayout mErrorView;
 
@@ -86,8 +90,6 @@ public class MainActivity extends BaseActivity {
      */
 
     private Parcelable mMovieListParceble;
-    private final boolean isEnableLoadMore = true;
-
 
     /**
      * Firula
@@ -145,7 +147,8 @@ public class MainActivity extends BaseActivity {
      */
     private TheMovieDbService getTheMovieDbService() {
         if (theMovieDbService == null) {
-            theMovieDbService = new TheMovieDbService(this);
+            ContentResolver contentResolver = getContentResolver();
+            theMovieDbService = new TheMovieDbService(this, contentResolver);
         }
 
         return theMovieDbService;
@@ -160,11 +163,7 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    /**
-     * @param movieList
-     * @description : configura o adaptador pela primeira vez e inicia um Listener para load more
-     */
-    private void configureAdapter(List<Movie> movieList) {
+    private void initializeAdapter(List<Movie> movieList) {
         mGridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
@@ -179,14 +178,29 @@ public class MainActivity extends BaseActivity {
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         mMovieAdapter = new MovieAdapter(this, movieList);
         mRecyclerView.setAdapter(mMovieAdapter);
+    }
 
-        if (!isEnableLoadMore) {
-            mMovieAdapter.setIsShowLoader(false);
-        }
+    /**
+     * @param movieList
+     * @description : configura o adaptador pela primeira vez e inicia um Listener para load more
+     */
+    private void configureAdapter(List<Movie> movieList) {
 
-        if (listMovieCategory == ListMovie.Category.FAVORITE) {
+        if (listMovieCategory != ListMovie.Category.FAVORITE || mMovieAdapter == null) {
+            initializeAdapter(movieList);
+
+        } else {
             page = 1;
             mMovieAdapter.setIsShowLoader(false);
+            mMovieAdapter.clear();
+            for (Movie movie : movieList) {
+                mMovieAdapter.addItem(0, movie);
+            }
+            mMovieAdapter.notifyDataSetChanged();
+
+            if (movieList.size() == 0) {
+                show(mFavoriteEmpty, true);
+            }
             return;
         }
 
@@ -207,18 +221,11 @@ public class MainActivity extends BaseActivity {
                     return;
                 }
 
-                // Habilitar o Load More caso trabalhe com banco de dados
-                // Pq quando girar o device com muitos dados perde-se os registros
-                if (!isEnableLoadMore) {
-                    return;
-                }
-
-                // FIXME : Quando já rolou muito scroll, o rotate do celular perde os dados, resolver isso depois
-
                 if ((visibleItemCount + pastVisiblesItems + 1) >= totalItemCount) {
                     mMovieAdapter.setIsShowLoader(true);
 
                     if (!NetworkHelper.isOnline(mContext)) {
+                        mMovieAdapter.setIsShowLoader(false);
                         showToast(R.string.app_error_not_internet);
                         return;
                     }
@@ -230,7 +237,6 @@ public class MainActivity extends BaseActivity {
         };
 
         mRecyclerView.addOnScrollListener(onScrollListener);
-
 
     }
 
@@ -244,7 +250,7 @@ public class MainActivity extends BaseActivity {
 
         isFirstRequest = false;
 
-        if (mMovieAdapter != null && isEnableLoadMore) {
+        if (mMovieAdapter != null) {
             mMovieAdapter.setIsShowLoader(false);
         }
 
@@ -311,13 +317,18 @@ public class MainActivity extends BaseActivity {
     }
 
     private boolean actionMenu(ListMovie.Category order) {
-        if (this.listMovieCategory == order) {
+        return actionMenu(order, false);
+    }
+
+    private boolean actionMenu(ListMovie.Category order, Boolean isForce) {
+        if (this.listMovieCategory == order && !isForce) {
             showToast(getString(R.string.menu_already_ordered));
             return true;
         }
 
         show(mLoaderView, true);
         show(mErrorView, false);
+        show(mFavoriteEmpty, false);
         show(mRecyclerView, false);
 
         setTitleToolbar(order);
@@ -325,7 +336,7 @@ public class MainActivity extends BaseActivity {
         listMovieCategory = order;
         page = 1;
         if (mMovieAdapter != null) {
-            mMovieAdapter.clear();
+            mMovieAdapter.getItems().clear();
             mMovieAdapter.notifyDataSetChanged();
         }
         requestMoviesOnApi(page, listMovieCategory);
@@ -379,10 +390,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        getTheMovieDbService().deleteAll();
-
         if (mMovieListParceble != null && mGridLayoutManager != null) {
             mGridLayoutManager.onRestoreInstanceState(mMovieListParceble);
+        }
+        if (this.listMovieCategory == ListMovie.Category.FAVORITE) {
+            actionMenu(ListMovie.Category.FAVORITE, true);
         }
     }
 

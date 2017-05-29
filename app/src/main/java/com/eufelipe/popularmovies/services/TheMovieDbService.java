@@ -1,6 +1,10 @@
 package com.eufelipe.popularmovies.services;
 
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+
 import com.eufelipe.popularmovies.R;
 import com.eufelipe.popularmovies.application.App;
 import com.eufelipe.popularmovies.application.ListMovie;
@@ -9,14 +13,16 @@ import com.eufelipe.popularmovies.bases.BaseService;
 import com.eufelipe.popularmovies.callbacks.MoviesCallback;
 import com.eufelipe.popularmovies.callbacks.ReviewsCallback;
 import com.eufelipe.popularmovies.callbacks.VideosCallback;
+import com.eufelipe.popularmovies.data.MovieContract;
+import com.eufelipe.popularmovies.data.MovieUtils;
 import com.eufelipe.popularmovies.models.Movie;
 import com.eufelipe.popularmovies.models.MovieReview;
 import com.eufelipe.popularmovies.models.MovieVideo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import io.realm.RealmQuery;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -26,7 +32,7 @@ import retrofit2.Response;
  * @author: Felipe Rosas <contato@eufelipe.com>
  */
 
-public class TheMovieDbService extends BaseService<Movie> {
+public class TheMovieDbService extends BaseService {
 
     private final String TAG = TheMovieDbService.class.getSimpleName();
 
@@ -38,6 +44,7 @@ public class TheMovieDbService extends BaseService<Movie> {
     private Boolean isRequest = false;
 
     private String errorNotNetwork = null;
+    ContentResolver contentResolver = null;
 
 
     /**
@@ -71,10 +78,12 @@ public class TheMovieDbService extends BaseService<Movie> {
 
     /**
      * @param callback
+     * @param contentResolver
      * @description : Ao instanciar esta classe, é obrigatorio passar um objeto TheMovieDb
      */
-    public TheMovieDbService(TheMovieDb callback) {
+    public TheMovieDbService(TheMovieDb callback, ContentResolver contentResolver) {
         this.callback = callback;
+        this.contentResolver = contentResolver;
         this.errorNotNetwork = App.mGlobalContext.getString(R.string.app_error_not_internet);
     }
 
@@ -105,8 +114,7 @@ public class TheMovieDbService extends BaseService<Movie> {
 
         } else if (listMovieCategory == ListMovie.Category.FAVORITE) {
             setRequest(false);
-            List<Movie> favorites = favorites();
-            callback.onRequestMovieSuccess(favorites, getPage());
+            callback.onRequestMovieSuccess(favorites(), 1);
         }
     }
 
@@ -131,9 +139,14 @@ public class TheMovieDbService extends BaseService<Movie> {
                 if (response.body() == null || response.body().getResults() == null) {
                     callback.onRequestMoviesFailure(null);
                 }
-                List<Movie> results = response.body().getResults();
-                callback.onRequestMovieSuccess(results, getPage());
 
+                List<Movie> results = new ArrayList<>();
+                for (Movie movie : response.body().getResults()) {
+                    movie.setRemoteId(String.format("%d", movie.getId()));
+                    results.add(movie);
+                }
+
+                callback.onRequestMovieSuccess(results, getPage());
             }
 
             @Override
@@ -160,8 +173,10 @@ public class TheMovieDbService extends BaseService<Movie> {
 
                 if (response.body() == null) {
                     callback.onRequestMoviesFailure(null);
+                    return;
                 }
                 Movie movie = response.body();
+                movie.setRemoteId(String.format("%d", movie.getId()));
                 callback.onRequestMovieSuccess(movie);
             }
 
@@ -184,6 +199,7 @@ public class TheMovieDbService extends BaseService<Movie> {
             public void onResponse(Call<ReviewsCallback> call, Response<ReviewsCallback> response) {
                 if (response.body() == null || response.body().getResults() == null) {
                     callback.onRequestMoviesFailure(null);
+                    return;
                 }
                 List<MovieReview> results = response.body().getResults();
 
@@ -208,6 +224,7 @@ public class TheMovieDbService extends BaseService<Movie> {
             public void onResponse(Call<VideosCallback> call, Response<VideosCallback> response) {
                 if (response.body() == null || response.body().getResults() == null) {
                     callback.onRequestMoviesFailure(null);
+                    return;
                 }
                 List<MovieVideo> results = response.body().getResults();
                 callback.onRequestMoviesVideosSuccess(results);
@@ -220,17 +237,38 @@ public class TheMovieDbService extends BaseService<Movie> {
         });
     }
 
+    /**
+     * Reliza um consulta no banco de movies pelo remote remoteId
+     *
+     * @param remoteId
+     * @return
+     */
+    public Cursor findMovieCursorById(String remoteId) {
+        return this.contentResolver.query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null,
+                MovieContract.MovieEntry.COLUMN_REMOTE_ID + " = " + remoteId,
+                null,
+                null
+        );
+    }
+
 
     /**
      * @param movie
      * @description : Método para favoritar/desfavoritar um movie
      */
     public void toggleFavoriteMovie(Movie movie) {
-        realm().beginTransaction();
-        int id = movie.getId();
-        Movie record = firstOrNew(movie, id);
-        record.setIsFavorite(!record.getIsFavorite());
-        realm().commitTransaction();
+
+        ContentValues contentValues = MovieUtils.values(movie);
+        Cursor cursor = findMovieCursorById(movie.getRemoteId());
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int id = cursor.getInt(cursor.getColumnIndex(MovieContract.MovieEntry._ID));
+            this.contentResolver.delete(MovieContract.MovieEntry.buildWithId(id), null, null);
+        } else {
+            this.contentResolver.insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+        }
     }
 
     /**
@@ -238,12 +276,18 @@ public class TheMovieDbService extends BaseService<Movie> {
      *
      * @return
      */
-    public List<Movie> favorites() {
-        RealmQuery<Movie> query = realm()
-                .where(Movie.class)
-                .equalTo("isFavorite", true);
 
-        return query.findAll();
+    public List<Movie> favorites() {
+
+        Cursor cursor = this.contentResolver.query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        return MovieUtils.parse(cursor);
     }
 
 

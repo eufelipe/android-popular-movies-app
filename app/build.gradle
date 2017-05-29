@@ -19,7 +19,6 @@ android {
     }
 }
 
-apply plugin: 'realm-android'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])

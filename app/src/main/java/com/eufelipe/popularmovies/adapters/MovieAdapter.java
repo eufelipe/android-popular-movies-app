@@ -24,7 +24,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADER = 1;
-    private boolean isShowLoader = true;
+    private boolean isShowLoader = false;
     private boolean isShowAnimation = true;
 
     private final Context mContext;

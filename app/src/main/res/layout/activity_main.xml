@@ -31,4 +31,6 @@
 
     <include layout="@layout/include_error_message" />
 
+    <include layout="@layout/include_empty" />
+
 </android.support.design.widget.CoordinatorLayout>

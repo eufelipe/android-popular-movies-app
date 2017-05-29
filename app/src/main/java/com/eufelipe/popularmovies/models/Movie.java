@@ -12,9 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import io.realm.RealmObject;
-
-public class Movie extends RealmObject implements Parcelable {
+public class Movie implements Parcelable {
 
     private final static String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/";
     private final static String SIZE_IMAGE = "w185";
@@ -24,6 +22,8 @@ public class Movie extends RealmObject implements Parcelable {
 
     @SerializedName("id")
     private int id;
+
+    private String remoteId;
 
     @SerializedName("adult")
     private boolean isAdult;
@@ -79,8 +79,17 @@ public class Movie extends RealmObject implements Parcelable {
         return id;
     }
 
-    private Movie setId(Integer id) {
+    public Movie setId(Integer id) {
         this.id = id;
+        return this;
+    }
+
+    public String getRemoteId() {
+        return remoteId;
+    }
+
+    public Movie setRemoteId(String remoteId) {
+        this.remoteId = remoteId;
         return this;
     }
 
@@ -88,7 +97,7 @@ public class Movie extends RealmObject implements Parcelable {
         return isAdult;
     }
 
-    private Movie setAdult(Boolean adult) {
+    public Movie setIsAdult(Boolean adult) {
         isAdult = adult;
         return this;
     }
@@ -100,16 +109,16 @@ public class Movie extends RealmObject implements Parcelable {
         return overview;
     }
 
-    private Movie setOverview(String overview) {
+    public Movie setOverview(String overview) {
         this.overview = overview;
         return this;
     }
 
-    private Date getReleaseDate() {
+    public Date getReleaseDate() {
         return releaseDate;
     }
 
-    private Movie setReleaseDate(Date releaseDate) {
+    public Movie setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
         return this;
     }
@@ -118,7 +127,7 @@ public class Movie extends RealmObject implements Parcelable {
         return originalTitle;
     }
 
-    private Movie setOriginalTitle(String originalTitle) {
+    public Movie setOriginalTitle(String originalTitle) {
         this.originalTitle = originalTitle;
         return this;
     }
@@ -127,7 +136,7 @@ public class Movie extends RealmObject implements Parcelable {
         return originalLanguage;
     }
 
-    private Movie setOriginalLanguage(String originalLanguage) {
+    public Movie setOriginalLanguage(String originalLanguage) {
         this.originalLanguage = originalLanguage;
         return this;
     }
@@ -139,25 +148,25 @@ public class Movie extends RealmObject implements Parcelable {
         return title;
     }
 
-    private Movie setTitle(String title) {
+    public Movie setTitle(String title) {
         this.title = title;
         return this;
     }
 
-    private String getPoster() {
+    public String getPoster() {
         return poster;
     }
 
-    private Movie setPoster(String poster) {
+    public Movie setPoster(String poster) {
         this.poster = poster;
         return this;
     }
 
-    private String getBackdrop() {
+    public String getBackdrop() {
         return backdrop;
     }
 
-    private Movie setBackdrop(String backdrop) {
+    public Movie setBackdrop(String backdrop) {
         this.backdrop = backdrop;
         return this;
     }
@@ -166,7 +175,7 @@ public class Movie extends RealmObject implements Parcelable {
         return popularity;
     }
 
-    private Movie setPopularity(Double popularity) {
+    public Movie setPopularity(Double popularity) {
         this.popularity = popularity;
         return this;
     }
@@ -175,7 +184,7 @@ public class Movie extends RealmObject implements Parcelable {
         return voteCount;
     }
 
-    private Movie setVoteCount(Integer voteCount) {
+    public Movie setVoteCount(Integer voteCount) {
         this.voteCount = voteCount;
         return this;
     }
@@ -184,7 +193,7 @@ public class Movie extends RealmObject implements Parcelable {
         return voteAverage;
     }
 
-    private Movie setVoteAverage(double voteAverage) {
+    public Movie setVoteAverage(double voteAverage) {
         this.voteAverage = voteAverage;
         return this;
     }
@@ -193,7 +202,7 @@ public class Movie extends RealmObject implements Parcelable {
         return isVideo;
     }
 
-    private Movie setIsVideo(Boolean video) {
+    public Movie setIsVideo(Boolean video) {
         isVideo = video;
         return this;
     }
@@ -202,7 +211,7 @@ public class Movie extends RealmObject implements Parcelable {
         return tagline;
     }
 
-    private Movie setTagline(String tagline) {
+    public Movie setTagline(String tagline) {
         this.tagline = tagline;
         return this;
     }
@@ -211,7 +220,7 @@ public class Movie extends RealmObject implements Parcelable {
         return runtime;
     }
 
-    private Movie setRuntime(int runtime) {
+    public Movie setRuntime(int runtime) {
         this.runtime = runtime;
         return this;
     }
@@ -283,6 +292,7 @@ public class Movie extends RealmObject implements Parcelable {
 
     private Movie(Parcel in) {
         id = in.readInt();
+        remoteId = in.readString();
         isAdult = in.readByte() != 0;
         overview = in.readString();
         originalTitle = in.readString();
@@ -320,6 +330,7 @@ public class Movie extends RealmObject implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(id);
+        parcel.writeString(remoteId);
         parcel.writeByte((byte) (isAdult ? 1 : 0));
         parcel.writeString(overview);
         parcel.writeString(originalTitle);

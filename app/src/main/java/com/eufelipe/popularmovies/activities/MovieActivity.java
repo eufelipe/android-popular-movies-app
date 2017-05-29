@@ -1,6 +1,7 @@
 package com.eufelipe.popularmovies.activities;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ import butterknife.OnClick;
 
 public class MovieActivity extends BaseActivity {
 
+    private final String TAG = getClass().getSimpleName();
     private Movie mMovie;
 
     private TheMovieDbService theMovieDbService = null;
@@ -107,7 +109,7 @@ public class MovieActivity extends BaseActivity {
      */
     private TheMovieDbService getTheMovieDbService() {
         if (theMovieDbService == null) {
-            theMovieDbService = new TheMovieDbService(this);
+            theMovieDbService = new TheMovieDbService(this, getContentResolver());
         }
 
         return theMovieDbService;
@@ -126,9 +128,9 @@ public class MovieActivity extends BaseActivity {
         if (bundle != null && bundle.getParcelable(Constants.MOVIE_DATA_KEY) != null) {
             mMovie = bundle.getParcelable(Constants.MOVIE_DATA_KEY);
 
-            Movie foundMovieLocal = getTheMovieDbService().findById(mMovie.getId());
-            if (foundMovieLocal != null) {
-                mMovie.setIsFavorite(foundMovieLocal.getIsFavorite());
+            Cursor cursor = getTheMovieDbService().findMovieCursorById(mMovie.getRemoteId());
+            if (cursor != null && cursor.moveToFirst()) {
+                mMovie.setIsFavorite(true);
             }
 
         } else {
@@ -142,9 +144,12 @@ public class MovieActivity extends BaseActivity {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                getTheMovieDbService().movie(mMovie.getId());
-                getTheMovieDbService().videos(mMovie.getId());
-                getTheMovieDbService().reviews(mMovie.getId());
+
+                Integer remoteId = Integer.parseInt(mMovie.getRemoteId());
+
+                getTheMovieDbService().movie(remoteId);
+                getTheMovieDbService().videos(remoteId);
+                getTheMovieDbService().reviews(remoteId);
             }
 
         });

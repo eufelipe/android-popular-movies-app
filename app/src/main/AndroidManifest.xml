@@ -23,6 +23,12 @@
 
         <activity android:name=".activities.MovieActivity" />
 
+        <provider
+            android:name="com.eufelipe.popularmovies.data.MovieContentProvider"
+            android:authorities="com.eufelipe.popularmovies"
+            android:exported="false" />
+
+
     </application>
 
 </manifest>
